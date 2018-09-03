@@ -1,31 +1,22 @@
 package com.ajie.support.service;
 
-import java.util.ArrayList;
-
 /**
- * 辅助POJO类可以使用服务功能
+ * 因pojo就是一堆属性组成的bean，没有任何的调用能力，需对pojo进一步加工，使其能访问服务接口，<Br>
+ * 这样就能通过服务接口，调用需要的服务，这样会更体现出面向对象
  * 
  * @author niezhenjie
  */
-public class ServiceSupport<P> {
-	protected ServiceExt serviceExt;
+public abstract class ServiceSupport<P, E extends ServiceExt> {
+	protected E serviceExt;
 
-	public ServiceSupport(ServiceExt serviceExt) {
+	public ServiceSupport(E serviceExt) {
 		this.serviceExt = serviceExt;
 	}
 
-	public  P valueOf(P p) {
-		return null;
+	public E getService() {
+		return serviceExt;
 	}
 
-	public boolean update(P p) {
-		serviceExt.update(p);
-		return true;
-	}
-	
-	public static void main(String[] args) {
-		ServiceSupport<String> ss = new ServiceSupport<String>(null);
-		ss.update(new String());
-		ss.valueOf(new ArrayList<Integer>());
-	}
+	public abstract P toPojo();
+
 }
