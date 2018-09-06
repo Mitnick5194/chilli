@@ -12,7 +12,9 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
- * fastjson封装的工具类
+ * fastjson封装的工具类<Br>
+ * 转换成Json String后，可以直接被js识别为json，并不需要在Java中转换成JsonObject<Br>
+ * 也不需要在js中使用JSON.parse或eval
  * 
  * @author niezhenjie
  */
@@ -33,6 +35,12 @@ public class JsonUtil {
 			SerializerFeature.WriteNullStringAsEmpty // 字符类型字段如果为null，输出为""，而不是null
 	};
 
+	/**
+	 * 转换后的String，可以直接被前端js识别为json，并且object可以是有普通类型和集合类型和对象类型组成
+	 * 
+	 * @param object
+	 * @return
+	 */
 	public static String toJSONString(Object object) {
 		return JSON.toJSONString(object, config, features);
 	}
