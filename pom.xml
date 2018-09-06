@@ -62,7 +62,10 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<!--很奇怪 这里放开了 项目有红叉，注释了 又打包不成功/r/n <goals> <goal>jar</goal> </goals> -->
+						<!--很奇怪 这里放开了 项目有红叉，注释了 又打包不成功/ -->
+						<goals>
+							<!-- <goal>jar</goal> -->
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
