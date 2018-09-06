@@ -1,4 +1,4 @@
-package com.ajie.support;
+package com.ajie.chilli.support;
 
 /**
  * @author niezhenjie

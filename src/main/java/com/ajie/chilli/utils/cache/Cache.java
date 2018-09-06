@@ -1,4 +1,4 @@
-package com.ajie.utils.cache;
+package com.ajie.chilli.utils.cache;
 
 import java.util.Date;
 import java.util.Map;

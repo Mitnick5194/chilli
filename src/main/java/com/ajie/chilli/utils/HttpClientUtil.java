@@ -1,4 +1,4 @@
-package com.ajie.utils;
+package com.ajie.chilli.utils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

@@ -1,4 +1,4 @@
-package com.ajie.utils.common;
+package com.ajie.chilli.utils.common;
 
 import java.util.List;
 import java.util.Map;

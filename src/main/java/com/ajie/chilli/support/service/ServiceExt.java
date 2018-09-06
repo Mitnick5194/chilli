@@ -1,4 +1,4 @@
-package com.ajie.support.service;
+package com.ajie.chilli.support.service;
 
 /**
  * 需要提供service服务的业务对象的服务类实现都应该实现这个接口<br>

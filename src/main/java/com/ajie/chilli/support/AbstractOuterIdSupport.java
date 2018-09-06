@@ -1,11 +1,11 @@
-package com.ajie.support;
+package com.ajie.chilli.support;
 
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ajie.utils.Toolkits;
+import com.ajie.chilli.utils.Toolkits;
 
 /**
  * 支持外部ID接口的抽象实现

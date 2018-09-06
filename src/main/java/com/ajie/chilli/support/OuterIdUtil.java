@@ -1,4 +1,4 @@
-package com.ajie.support;
+package com.ajie.chilli.support;
 
 /**
  * 外部ID辅助类，主要是将一个外部ID转换成真是ID

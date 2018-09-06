@@ -1,4 +1,4 @@
-package com.ajie.utils.common;
+package com.ajie.chilli.utils.common;
 
 public class StringUtil {
 

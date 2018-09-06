@@ -1,4 +1,4 @@
-package com.ajie.support;
+package com.ajie.chilli.support;
 
 /**
  * 实现此接口表示持久对象可以获得唯一的对外开放的ID，以避免数据库ID直接暴露出去<br>
