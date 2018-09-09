@@ -122,7 +122,17 @@ public class HttpClientUtil {
 
 	public static String doPost(String url) throws IOException {
 		return doPost(url, null);
-		
+	}
+	
+	public static void main(String[] args) {
+		String url = "http://www.baidu.com1";
+		try {
+			String ret = HttpClientUtil.doGet(url);
+			System.out.println(ret);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
