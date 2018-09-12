@@ -7,7 +7,7 @@ package com.ajie.chilli.support.service;
  * @author niezhenjie
  */
 public abstract class ServiceSupport<P, E extends ServiceExt> {
-	protected E serviceExt;
+	protected transient E serviceExt;
 
 	public ServiceSupport(E serviceExt) {
 		this.serviceExt = serviceExt;

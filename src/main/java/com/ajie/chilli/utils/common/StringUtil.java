@@ -19,6 +19,7 @@ public class StringUtil {
 	 * 判断两个字符串是否相等，如果两个都为null，返回的是true
 	 * 
 	 * @param str1
+	 *            最好是已知字符串
 	 * @param str2
 	 * @return
 	 */

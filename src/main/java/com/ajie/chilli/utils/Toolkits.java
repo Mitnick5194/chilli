@@ -4,13 +4,16 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 /**
+ * 工具箱
+ * 
  * @author niezhenjie
  */
 public class Toolkits {
-
 
 	private Toolkits() {
 	}
@@ -44,25 +47,29 @@ public class Toolkits {
 	}
 
 	/**
-	 * 生成随机数 有当前毫秒数加上三位随机数
+	 * 16位随机数 <br>
+	 * 当前时间戳+从6为随机数里截取的三位数，经测试，同时开100个线程生成的id没有出现过重复，但是当<br>
+	 * 线程数到达1000个时，会出现几个重复，在并发不是很大的情况下，可以使用
 	 * 
 	 * @return
 	 */
-	public static String genUniqueId() {
-		long currentTimeMillis = System.currentTimeMillis();
+	public static String gen16UniqueId() {
+		long currentTimeMillis = System.currentTimeMillis(); // 当前时间戳
 		Random random = new Random();
-		int randomInt = random.nextInt(999);
+		int random1 = random.nextInt(999); // 3位随机数
+		int random2 = random.nextInt(999); // 3位随机数
+		int radom = ((random1 * random2));
 		StringBuilder sb = new StringBuilder();
 		sb.append(currentTimeMillis);
-		sb.append(randomInt);
+		sb.append(radom);
 		String str = sb.toString();
-		int len = str.length();
-		if (len < 16) {
-			int lack = 16 - len;
-			for (int i = 0; i < lack; i++) {
-				sb.append(random.nextInt(9));
+		// 不足16位用0补足
+		int lack = 16 - str.length();
+		if (lack > 0) {
+			while (lack-- > 0) {
+				str += "0";
 			}
-		} else if (len > 16) {
+		} else if (lack < 0) {
 			str = str.substring(0, 16);
 		}
 		return str;
@@ -90,15 +97,6 @@ public class Toolkits {
 			throw new NumberFormatException("格式错误，参数格式应为0x开头的十六进制: " + hex);
 		}
 		return ret;
-	}
-
-	public static void main(String[] args) {
-		/*
-		 * String id = Various.genUniqueId(); System.out.println(id);
-		 * System.out.println(id.length());
-		 */
-		int i = Toolkits.Hex2Deci("0x100");
-		System.out.println(i);
 	}
 
 	/**
@@ -148,4 +146,47 @@ public class Toolkits {
 		return ret + min;
 	}
 
+	// 测试
+	public static void main(String[] args) {
+		final HashSet<String> set = new HashSet<String>();
+		final ArrayList<String> list = new ArrayList<String>();
+		for (int i = 0; i < 1000; i++) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					synchronized (set) {
+						String id = Toolkits.gen16UniqueId();
+						// set.add(id);
+						list.add(id);
+					}
+				}
+			}).start();
+		}
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(set.size());
+		System.out.println(list.size());
+
+		System.out.println("================================");
+		for (int i = 0; i < list.size(); i++) {
+			String str1 = list.get(i);
+			for (int j = i + 1; j < list.size() - i - 1; j++) {
+				if (str1.equals(list.get(j))) {
+					System.out.println("i=" + i + ", j=" + j);
+					System.out.println(str1);
+				}
+			}
+		}
+		System.out.println("================================");
+		/*	for (int i = 0; i < list.size(); i++) {
+				System.out.println(i + "： " + list.get(i));
+			}*/
+
+		/*int i = Toolkits.Hex2Deci("0x100");
+		System.out.println(i);*/
+	}
 }

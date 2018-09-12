@@ -98,4 +98,15 @@ public class SwitchUnmodifiableList<E> extends ArrayList<E> {
 		return super.set(index, element);
 	}
 
+	public static void main(String[] args) {
+		SwitchUnmodifiableList<String> list = new SwitchUnmodifiableList<String>();
+		list.add("a");
+		list.add("b");
+		list.add("c");
+		System.out.println(list.size());
+		list.swithUnmodifiable();
+		list.set(1, "df");
+
+	}
+
 }
