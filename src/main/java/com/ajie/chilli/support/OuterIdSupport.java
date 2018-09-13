@@ -37,7 +37,7 @@ public interface OuterIdSupport {
 	String getOuterId();
 
 	/**
-	 * 根据对外开放的id逆向推出真是的id
+	 * 根据对外开放的id逆向推出真是的id，一般不会用到，需要借助OuterIdUtil工具转换
 	 * 
 	 * @return
 	 */

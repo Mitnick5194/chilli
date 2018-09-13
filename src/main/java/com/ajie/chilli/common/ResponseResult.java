@@ -9,7 +9,11 @@ public class ResponseResult {
 
 	/** 成功状态码 */
 	public static int CODE_SUC = 200;
-	/** 失败状态 */
+
+	/** 成功状态码 , 调用结果为空 */
+	public static int CODE_NORET = 300;
+
+	/** 失败状态，有错误或异常抛出 */
 	public static int CODE_ERR = 500;
 
 	/**
