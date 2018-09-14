@@ -18,7 +18,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  * 
  * @author niezhenjie
  */
-public class JsonUtil {
+public class JsonUtils {
 
 	private static final SerializeConfig config;
 

@@ -1,8 +1,8 @@
 package com.ajie.chilli.utils.common;
 
-public class StringUtil {
+public class StringUtils {
 
-	private StringUtil() {
+	private StringUtils() {
 	}
 
 	/**
