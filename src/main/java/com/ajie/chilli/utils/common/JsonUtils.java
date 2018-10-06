@@ -1,5 +1,6 @@
 package com.ajie.chilli.utils.common;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -117,4 +118,46 @@ public class JsonUtils {
 		return s;
 	}
 
+	public static void main(String[] args) {
+		List<User> list = new ArrayList<User>();
+		list.add(new User(1, "a"));
+		list.add(new User(2, "b"));
+		list.add(new User(3, "c"));
+		list.add(new User(4, "d"));
+		String ret = JsonUtils.toJSONString(list);
+		System.out.println(ret);
+		List<User> list2 = JsonUtils.toList(ret, User.class);
+		System.out.println(list2.size());
+	}
+
+}
+
+class User {
+	private String name;
+	private int id;
+
+	public User() {
+
+	}
+
+	public User(int id, String name) {
+		this.name = name;
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 }

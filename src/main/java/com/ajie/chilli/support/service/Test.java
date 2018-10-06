@@ -13,7 +13,7 @@ public class Test {
 	}
 }
 
-class User extends ServiceSupport<UserPojo, UserServiceExt> {
+class User extends ServiceDi<UserPojo, UserServiceExt> {
 
 	int age;
 	String name;
