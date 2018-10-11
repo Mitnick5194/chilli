@@ -128,6 +128,42 @@ public class JsonUtils {
 		System.out.println(ret);
 		List<User> list2 = JsonUtils.toList(ret, User.class);
 		System.out.println(list2.size());
+
+		System.out.println("==========复合对象============");
+		Blog blog = new Blog("博客1", new User(1, "ajie"));
+		String str = JsonUtils.toJSONString(blog);
+		System.out.println(str);
+		Blog blo = JsonUtils.toBean(str, Blog.class);
+		Object obj = blo.getUser();
+		User bean = JsonUtils.toBean(obj.toString(), User.class);
+		System.out.println(bean.getId());
+	}
+
+}
+
+class Blog {
+	private String content;
+	private Object user;
+
+	public Blog(String content, Object user) {
+		this.content = content;
+		this.user = user;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Object getUser() {
+		return user;
+	}
+
+	public void setUser(Object user) {
+		this.user = user;
 	}
 
 }
