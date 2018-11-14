@@ -1,4 +1,4 @@
-package com.ajie.chilli.Collection.simple;
+package com.ajie.chilli.collection.simple;
 
 import java.util.ArrayList;
 import java.util.Collection;

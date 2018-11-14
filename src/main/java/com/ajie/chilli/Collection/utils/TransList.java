@@ -1,4 +1,4 @@
-package com.ajie.chilli.Collection.utils;
+package com.ajie.chilli.collection.utils;
 
 import java.util.AbstractList;
 import java.util.List;

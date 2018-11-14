@@ -1,4 +1,4 @@
-package com.ajie.chilli.utils.cache;
+package com.ajie.chilli.cache;
 
 import java.util.Date;
 import java.util.Map;
@@ -12,6 +12,11 @@ import java.util.Map;
  * @param <V>
  */
 public interface Cache<K, V> {
+	
+	/** 缓存状态--正常 */
+	public static final int SATAE_NORMAL = 0x10000;
+	/** 缓存状态--停用 */
+	public static final int SATAE_STOP = 0x10001;
 
 	/**
 	 * 向缓存中添加一条数据，key已经存在，则更新key对应的值， 并返回旧的value，如果不存在，则返回null;

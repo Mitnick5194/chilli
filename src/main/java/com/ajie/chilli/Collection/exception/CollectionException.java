@@ -1,4 +1,4 @@
-package com.ajie.chilli.Collection.exception;
+package com.ajie.chilli.collection.exception;
 
 /**
  * @author niezhenjie
