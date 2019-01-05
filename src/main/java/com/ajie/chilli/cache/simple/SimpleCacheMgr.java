@@ -113,7 +113,7 @@ public class SimpleCacheMgr implements CacheMgr {
 		AlertPolicy curAlertPolicy = getCurAlertPolicy();
 		if (null == curAlertPolicy)
 			return;
-		if (curAlertPolicy.getLevel() > policy.getLevel()) {
+		if (curAlertPolicy.getLevel() < policy.getLevel()) {
 			return;
 		}
 		cache.recovery(curAlertPolicy.getSize());
