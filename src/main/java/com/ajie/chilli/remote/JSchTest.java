@@ -1,5 +1,8 @@
 package com.ajie.chilli.remote;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -20,12 +23,12 @@ public class JSchTest {
 	public static void main(String[] args) {
 		JSch jsch = new JSch();
 		try {
-			Session session = jsch.getSession("ajie", "www.ajie18.top", 22);
+			Session session = jsch.getSession("ajie", "192.168.0.10", 22);
 			if (null == session) {
 				System.out.println("打开失败 ，session为空");
 			}
-			//session.setConfig("StrictHostKeyChecking", "no");
-			session.setPassword("niezhenjie22");
+			// session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword("123456");
 			session.connect(30000);
 			System.out.println("连接成功");
 		} catch (JSchException e) {
@@ -38,7 +41,7 @@ public class JSchTest {
 			e.printStackTrace();
 		}
 		try {
-			uploadBySftp("www.ajie18.top", "ajie", "niezhenjie22", 22, "/var/www/", "image/",
+			uploadBySftp("www.ajie18.top", "ajie", "niezhenjie22", 22, "/var/www/image", "image/",
 					"test.png", in);
 			System.out.println("上传成功");
 		} catch (Exception e) {
@@ -74,7 +77,7 @@ public class JSchTest {
 		try {
 			// 创建sftp通信通道
 			channel = (Channel) session.openChannel("sftp");
-			channel.connect(1000);
+			channel.connect(10000);
 			ChannelSftp sftp = (ChannelSftp) channel;
 
 			fullPath = basePath + filePath;

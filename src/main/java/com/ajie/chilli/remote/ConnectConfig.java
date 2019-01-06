@@ -29,6 +29,15 @@ public class ConnectConfig {
 	/** 超时值 */
 	protected int timeout;
 
+	/** 核心连接数 */
+	protected int core;
+
+	/** 最大连接数 */
+	protected int max;
+
+	/** 空闲连接（max-core)存活时间 单位ms */
+	protected int keepAliveTime;
+
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
 	}
@@ -85,14 +94,36 @@ public class ConnectConfig {
 		this.encording = encording;
 	}
 
-	public static ConnectConfig valueOf(String username, String password, String host, int port,
-			String encording) {
+	public void setCore(int core) {
+		this.core = core;
+	}
+
+	public int getCore() {
+		return core;
+	}
+
+	public void setMax(int max) {
+		this.max = max;
+	}
+
+	public int getMax() {
+		return max;
+	}
+
+	public void setKeepAliveTime(int keepAliveTime) {
+		this.keepAliveTime = keepAliveTime;
+	}
+
+	public int getKeepAliveTime() {
+		return keepAliveTime;
+	}
+
+	public static ConnectConfig valueOf(String username, String password, String host, int port) {
 		ConnectConfig config = new ConnectConfig();
 		config.username = username;
 		config.password = password;
 		config.host = host;
 		config.port = port;
-		config.encording = encording;
 		return config;
 	}
 
@@ -107,7 +138,7 @@ public class ConnectConfig {
 	}
 
 	public static void main(String[] args) {
-		ConnectConfig config = ConnectConfig.valueOf("ajie", "123", "www.ajie18.top", 22, "utf-8");
+		ConnectConfig config = ConnectConfig.valueOf("ajie", "123", "www.ajie18.top", 22);
 		System.out.println(config.toString());
 
 	}
