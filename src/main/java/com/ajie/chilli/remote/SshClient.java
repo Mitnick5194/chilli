@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -28,7 +29,6 @@ import com.jcraft.jsch.SftpException;
 /**
  * jsch封装
  * 
- * 单个文件上传可以使用MODE_COMMITTED_CLOSE，如果一次要上传多个文件，则使用MODE_DELAY_CLOSE，上传完毕后手动关闭
  *
  * @author niezhenjie
  *
@@ -39,10 +39,12 @@ public class SshClient {
 	protected final static boolean _TraceEnabled = logger.isTraceEnabled();
 
 	/** 关闭通道和session模式 -- 提交一次指令后立刻关闭 */
+	/*
 	public final static int MODE_COMMITTED_CLOSE = 0x100;
 
-	/** 关闭通道和session模式 -- 提交一次指令后不关闭，需手动调用close关闭 */
-	public final static int MODE_DELAY_CLOSE = 0x1000;
+	*//** 关闭通道和session模式 -- 提交一次指令后不关闭，需手动调用close关闭 */
+	/*
+	public final static int MODE_DELAY_CLOSE = 0x1000;*/
 
 	/** 重连失败最大次数 */
 	public final static int MAX_RETRY_COUNT = 3;
@@ -70,15 +72,8 @@ public class SshClient {
 	}
 
 	public SshClient(ConnectConfig config) {
-		this(config, MODE_COMMITTED_CLOSE);
-		queue = new ArrayBlockingQueue<>(config.getMax());
-		init();
-	}
-
-	public SshClient(ConnectConfig config, int mode) {
 		jsch = new JSch();
 		this.config = config;
-		this.closeMode = mode;
 		queue = new ArrayBlockingQueue<>(config.getMax());
 		init();
 	}
@@ -99,13 +94,13 @@ public class SshClient {
 		return closeMode;
 	}
 
-	public boolean isCommittedCloseMode() {
-		return closeMode == MODE_COMMITTED_CLOSE;
-	}
+	/*	public boolean isCommittedCloseMode() {
+			return closeMode == MODE_COMMITTED_CLOSE;
+		}
 
-	public boolean isDelayCloseMode() {
-		return closeMode == MODE_DELAY_CLOSE;
-	}
+		public boolean isDelayCloseMode() {
+			return closeMode == MODE_DELAY_CLOSE;
+		}*/
 
 	private void init() {
 		synchronized (queue) {
@@ -141,7 +136,7 @@ public class SshClient {
 						return t;
 					}
 				});
-		service.scheduleAtFixedRate(run, 30, 30, TimeUnit.SECONDS);// 30s
+		service.scheduleAtFixedRate(run, 10, 10, TimeUnit.SECONDS);// 30s
 
 	}
 
@@ -325,7 +320,8 @@ public class SshClient {
 		} catch (JSchException e) {
 			logger.error("无法打开channel ", e);
 		} finally {
-			out.close();
+			if (null != out)
+				out.close();
 			stream.close();
 			putIntoQueue(session);// 放回队列
 			channel.disconnect();
@@ -382,21 +378,24 @@ public class SshClient {
 		return new SshClient(config);
 	}
 
-	static public SshClient getClient(ConnectConfig config, int mod) {
-		return new SshClient(config, mod);
-	}
-
 	public String toString() {
 		return config.toString();
 	}
 
-	public static void main(String[] args) {
-		ConnectConfig config = ConnectConfig.valueOf("ajie", "123456", "192.168.0.10", 22);
+	public static void main(String[] args) throws IOException {
+		Properties prop = new Properties();
+		InputStream is = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("server.properties");
+		prop.load(is);
+		String host = prop.getProperty("host");
+		String passwd = prop.getProperty("passwd");
+		String name = prop.getProperty("name");
+		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
 		config.setMax(5);
 		config.setCore(2);
 		config.setBasePath("/var/www/image/");
 		SshClient client = SshClient.getClient(config);
-		client.setCloseMode(MODE_DELAY_CLOSE);
+		// client.setCloseMode(MODE_DELAY_CLOSE);
 		InputStream stream;
 		InputStream stream2;
 		try {

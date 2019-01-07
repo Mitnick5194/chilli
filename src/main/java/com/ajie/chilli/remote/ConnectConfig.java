@@ -1,5 +1,9 @@
 package com.ajie.chilli.remote;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 /**
  * 远程登录服务器所需的基本配置信息
  * 
@@ -133,13 +137,23 @@ public class ConnectConfig {
 		sb.append("password:").append(password).append(",");
 		sb.append("host:").append(host).append(",");
 		sb.append("port:").append(port).append(",");
-		sb.append("encording:").append(encording).append("}");
+		sb.append("encording:").append(encording).append(",");
+		sb.append("timeout:").append(timeout).append(",");
+		sb.append("core:").append(core).append(",");
+		sb.append("max:").append(max).append(",");
+		sb.append("keepAliveTime:").append(keepAliveTime).append("}");
 		return sb.toString();
 	}
 
-	public static void main(String[] args) {
-		ConnectConfig config = ConnectConfig.valueOf("ajie", "123", "www.ajie18.top", 22);
+	public static void main(String[] args) throws IOException {
+		Properties prop = new Properties();
+		InputStream is = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("server.properties");
+		prop.load(is);
+		String host = prop.getProperty("host");
+		String passwd = prop.getProperty("passwd");
+		String name = prop.getProperty("name");
+		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
 		System.out.println(config.toString());
-
 	}
 }

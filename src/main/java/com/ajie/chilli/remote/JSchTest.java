@@ -1,10 +1,9 @@
 package com.ajie.chilli.remote;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Properties;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -20,15 +19,22 @@ import com.jcraft.jsch.SftpException;
  *
  */
 public class JSchTest {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		JSch jsch = new JSch();
 		try {
-			Session session = jsch.getSession("ajie", "192.168.0.10", 22);
+			Properties prop = new Properties();
+			InputStream is = Thread.currentThread().getContextClassLoader()
+					.getResourceAsStream("server.properties");
+			prop.load(is);
+			String host = prop.getProperty("host");
+			String passwd = prop.getProperty("passwd");
+			String name = prop.getProperty("name");
+			Session session = jsch.getSession(name, host, 22);
 			if (null == session) {
 				System.out.println("打开失败 ，session为空");
 			}
 			// session.setConfig("StrictHostKeyChecking", "no");
-			session.setPassword("123456");
+			session.setPassword(passwd);
 			session.connect(30000);
 			System.out.println("连接成功");
 		} catch (JSchException e) {
@@ -41,8 +47,6 @@ public class JSchTest {
 			e.printStackTrace();
 		}
 		try {
-			uploadBySftp("www.ajie18.top", "ajie", "niezhenjie22", 22, "/var/www/image", "image/",
-					"test.png", in);
 			System.out.println("上传成功");
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -5,13 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 import com.ajie.chilli.remote.ConnectConfig;
 import com.ajie.chilli.remote.SshClient;
 import com.ajie.chilli.remote.SshService;
 
 /**
- *
+ * ssh服务实现
  *
  * @author niezhenjie
  *
@@ -75,21 +76,28 @@ public class SshServiceImpl implements SshService {
 		return client.upload(name, stream);
 	}
 
-	public static void main(String[] args) throws InterruptedException {
-		ConnectConfig config = ConnectConfig.valueOf("ajie", "123456", "192.168.0.10", 22);
-		config.setTimeout(10);
+	public static void main(String[] args) throws InterruptedException, IOException {
+		Properties prop = new Properties();
+		InputStream is = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("server.properties");
+		prop.load(is);
+		String host = prop.getProperty("host");
+		String passwd = prop.getProperty("passwd");
+		String name = prop.getProperty("name");
+		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
+		config.setTimeout(1000);
 		config.setBasePath("/var/www/image/");
-		config.setMax(100);
+		config.setMax(15);
 		config.setCore(1);
 		final SshServiceImpl sshService = new SshServiceImpl(config);
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 1; i++) {
 			final int j = i;
 			Thread t = new Thread((i + 1) + "") {
 				public void run() {
 					InputStream stream;
 					try {
-						stream = new FileInputStream(new File(
-								"C:/Users/ajie/Desktop/origin_image006.png"));
+						stream = new FileInputStream(
+								new File("C:/Users/ajie/Desktop/arrow_top.png"));
 						boolean ret = sshService.upload("testimg" + (j + 1) + ".png", stream);
 						System.out.println(ret);
 					} catch (Exception e) {
@@ -100,8 +108,7 @@ public class SshServiceImpl implements SshService {
 			t.start();
 		}
 
-		Thread.sleep(20000);
-		SshClient client2 = sshService.getClient();
+		// SshClient client2 = sshService.getClient();
 		// client2.recycle();
 
 	}

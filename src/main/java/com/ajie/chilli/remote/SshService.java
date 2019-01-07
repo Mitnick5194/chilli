@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.rmi.RemoteException;
 
 /**
- * FTPClient包装服务类
+ * ssh服务
  *
  * @author niezhenjie
  *
