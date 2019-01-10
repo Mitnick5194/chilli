@@ -241,7 +241,7 @@ public class SshClient {
 			session.setConfig("StrictHostKeyChecking", "no");
 			session.setPassword(config.getPassword());
 			if (config.getTimeout() <= 0) {
-				session.setTimeout(10000); // 默认1s
+				session.setTimeout(1000); // 默认1s
 			} else {
 				session.setTimeout(config.getTimeout());
 			}

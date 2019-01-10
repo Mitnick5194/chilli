@@ -41,7 +41,7 @@ public class StringUtils {
 			if (byte1[i] != byte2[i])
 				return false;
 		}
-		return true;
+		return false;
 	}
 
 	/**
