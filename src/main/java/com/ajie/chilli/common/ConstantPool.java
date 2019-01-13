@@ -1,4 +1,4 @@
-package com.ajie.chilli.utils.common;
+package com.ajie.chilli.common;
 
 /**
  * 常用的常量

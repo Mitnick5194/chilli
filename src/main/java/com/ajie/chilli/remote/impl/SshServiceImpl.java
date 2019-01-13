@@ -71,9 +71,8 @@ public class SshServiceImpl implements SshService {
 	@Override
 	synchronized public boolean upload(String path, String name, InputStream stream)
 			throws RemoteException, IOException {
-		config.setBasePath(path);
 		SshClient client = getClient();
-		return client.upload(name, stream);
+		return client.upload(path, name, stream);
 	}
 
 	public static void main(String[] args) throws InterruptedException, IOException {

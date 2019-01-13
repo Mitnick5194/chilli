@@ -1,7 +1,6 @@
 package com.ajie.chilli.remote;
 
 import java.rmi.RemoteException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public class SessionExt {
 	private String name;
 
 	/** 打开channel重试次数 */
-	private AtomicInteger retryCount = new AtomicInteger();
+	// private AtomicInteger retryCount = new AtomicInteger();
 
 	public SessionExt(Session session) {
 		this.session = session;

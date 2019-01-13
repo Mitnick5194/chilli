@@ -273,7 +273,7 @@ public class SshClient {
 	}
 
 	/**
-	 * 上传文件
+	 * 上传文件至配置路径
 	 * 
 	 * @param fileName
 	 *            文件名
@@ -292,17 +292,30 @@ public class SshClient {
 	 */
 	public boolean upload(String fileName, InputStream stream) throws RemoteException, IOException {
 		// long start = System.currentTimeMillis();
+		return upload(config.getBasePath(), fileName, stream);
+	}
+
+	/**
+	 * 上传文件至指定路径
+	 * 
+	 * @param path
+	 * @param stream
+	 * @return
+	 * @throws RemoteException
+	 * @throws IOException
+	 */
+	public boolean upload(String path, String fileName, InputStream stream) throws RemoteException,
+			IOException {
+		// long start = System.currentTimeMillis();
 		SessionExt session = getSession();
+		if (null == session)
+			throw new RemoteException("无法打开会话");
 		Channel channel = null;
-		if (null == session) {
-			throw new RemoteException("网络异常，请稍后再试");
-		}
 		OutputStream out = null;
-		String path = "";
 		try {
 			channel = session.openChannel(config.getTimeout(), "sftp");
 			ChannelSftp sftp = (ChannelSftp) channel;
-			path = createFolders(sftp);
+			path = createFolders(path, sftp);
 			out = sftp.put(path + fileName);
 			byte[] buf = new byte[1024];
 			int n = stream.read(buf);
@@ -311,9 +324,8 @@ public class SshClient {
 				n = stream.read(buf);
 			}
 			out.flush();
-			if (_TraceEnabled) {
+			if (_TraceEnabled)
 				logger.info("文件上传至服务器，" + config.toString());
-			}
 		} catch (SftpException e) {
 			logger.error("无法创建目录 ", path, e);
 			throw new RemoteException("无法创建目录", e);
@@ -336,16 +348,14 @@ public class SshClient {
 	 * @return
 	 * @throws RemoteException
 	 */
-	private String createFolders(ChannelSftp sftp) throws RemoteException {
-		String basepath = config.getBasePath();
-		if (basepath.startsWith("/")) {
-			basepath = basepath.substring(1);
+	private String createFolders(String path, ChannelSftp sftp) throws RemoteException {
+		if (path.startsWith("/")) {
+			path = path.substring(1);
 		}
-		String[] folders = basepath.split("/");
+		String[] folders = path.split("/");
 		if (null == folders) {
 			folders = new String[0];
 		}
-		String path = "";
 		// 进入目录，如果目录不存在，则创建目录
 		for (int i = 0; i < folders.length; i++) {
 			path += "/" + folders[i];
