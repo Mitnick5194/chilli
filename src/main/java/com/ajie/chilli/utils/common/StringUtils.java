@@ -66,6 +66,12 @@ public class StringUtils {
 		String str2 = "abc";
 		boolean ret = eqTrim(str1, str2);
 		System.out.println(ret);
+	}
 
+	public static void deleteArrayEle(String[] datas) {
+		for (int i = 0; i < datas.length; i++) {
+			datas[i] = null;
+		}
+		datas = null;
 	}
 }
