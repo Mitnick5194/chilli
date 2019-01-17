@@ -1,12 +1,7 @@
 package com.ajie.chilli.remote;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.Session;
+import java.io.OutputStream;
+import java.rmi.RemoteException;
 
 /**
  * 远程指令
@@ -14,51 +9,42 @@ import com.jcraft.jsch.Session;
  * @author niezhenjie
  *
  */
-public class RemoteCmd {
+public interface RemoteCmd {
 
-	public static void main(String[] args) throws IOException {
-		Properties prop = new Properties();
-		InputStream is = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream("server.properties");
-		prop.load(is);
-		String host = prop.getProperty("host");
-		String passwd = prop.getProperty("passwd");
-		String name = prop.getProperty("name");
-		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
-		config.setMax(5);
-		config.setCore(2);
-		config.setBasePath("/var/www/image/");
-		SshClient client = SshClient.getClient(config);
-		SessionExt sessionExt = client.getSession();
+	/**
+	 * 执行指令
+	 * 
+	 * @param cmd
+	 *            指令
+	 * @return 返回控制台显示结果
+	 * @throws RemoteException
+	 */
+	String cmd(String cmd) throws RemoteException;
 
-		try {
-			Session session = sessionExt.getSession();
-			ChannelExec channel = (ChannelExec) session.openChannel("exec");
-			channel.setInputStream(null);
-			channel.setErrStream(System.err);
-			channel.setCommand("ls");
-			InputStream in = channel.getInputStream();
-			channel.connect();
-			byte[] buf = new byte[1024];
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			while (true) { // 因为是异步的，数据不一定能及时获取到，所以需要轮询
-				while (in.available() > 0) {
-					in.read(buf);
-					out.write(buf);
-				}
-				System.out.println(new String(out.toByteArray(),"utf-8"));
-				if (channel.isClosed()) {
-					if (in.available() > 0)
-						continue;// 还有数据，继续读
-					System.out.println("exit status: " + channel.getExitStatus());
-					break;
-				}
-				Thread.sleep(1000);
-			}
+	/**
+	 * 执行指令，返回字节数组结果
+	 * 
+	 * @param cmd
+	 *            指令
+	 * @return 控制台显示结果以字节数组形式返回
+	 */
+	byte[] byteArrayResultCmd(String cmd) throws RemoteException;
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	/**
+	 * 执行指令，返回流结果
+	 * 
+	 * @param cmd
+	 *            指令
+	 * @return 控制台显示结果以流的形式返回
+	 */
+	OutputStream streamResultCmd(String cmd) throws RemoteException;
+
+	/**
+	 * 执行指令，不返回结果
+	 * 
+	 * @param cmd
+	 *            指令
+	 */
+	void voidResultcmd(String cmd);
 
 }

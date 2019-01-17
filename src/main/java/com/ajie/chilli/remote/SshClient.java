@@ -38,13 +38,6 @@ public class SshClient {
 	/** 是否允许trace */
 	protected final static boolean _TraceEnabled = logger.isTraceEnabled();
 
-	/** 关闭通道和session模式 -- 提交一次指令后立刻关闭 */
-	/*
-	public final static int MODE_COMMITTED_CLOSE = 0x100;
-
-	*//** 关闭通道和session模式 -- 提交一次指令后不关闭，需手动调用close关闭 */
-	/*
-	public final static int MODE_DELAY_CLOSE = 0x1000;*/
 
 	/** 重连失败最大次数 */
 	public final static int MAX_RETRY_COUNT = 3;
@@ -97,7 +90,6 @@ public class SshClient {
 	/*	public boolean isCommittedCloseMode() {
 			return closeMode == MODE_COMMITTED_CLOSE;
 		}
-
 		public boolean isDelayCloseMode() {
 			return closeMode == MODE_DELAY_CLOSE;
 		}*/
