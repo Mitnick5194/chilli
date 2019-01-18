@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.rmi.RemoteException;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -13,9 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.ajie.chilli.remote.ConnectConfig;
 import com.ajie.chilli.remote.RemoteCmd;
 import com.ajie.chilli.remote.SessionExt;
-import com.ajie.chilli.remote.SshClient;
-import com.ajie.chilli.remote.SshSessionMgr;
 import com.ajie.chilli.remote.Worker;
+import com.ajie.chilli.remote.exception.RemoteException;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -27,19 +25,19 @@ import com.jcraft.jsch.Session;
  *
  */
 public class RemoteCmdImpl implements RemoteCmd {
-	private final static Logger logger = LoggerFactory.getLogger(RemoteCmdImpl.class);
+	public final static Logger logger = LoggerFactory.getLogger(RemoteCmdImpl.class);
 
-	private SshSessionMgr ssh;
+	private AsynSshSessionMgr ssh;
 
-	public RemoteCmdImpl(SshSessionMgr ssh) {
+	public RemoteCmdImpl(AsynSshSessionMgr ssh) {
 		this.ssh = ssh;
 	}
 
-	public void setSsh(SshSessionMgr ssh) {
+	public void setSsh(AsynSshSessionMgr ssh) {
 		this.ssh = ssh;
 	}
 
-	public SshSessionMgr getSsh() {
+	public AsynSshSessionMgr getSsh() {
 		return ssh;
 	}
 
@@ -113,7 +111,7 @@ public class RemoteCmdImpl implements RemoteCmd {
 
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, RemoteException {
 		Properties prop = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("server.properties");
@@ -124,8 +122,7 @@ public class RemoteCmdImpl implements RemoteCmd {
 		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
 		config.setMax(5);
 		config.setCore(2);
-		config.setBasePath("/var/www/image/");
-		SshSessionMgr ssh = new SshSessionMgr(config);
+		AsynSshSessionMgr ssh = new AsynSshSessionMgr(config);
 		RemoteCmdImpl rci = new RemoteCmdImpl(ssh);
 		rci.cmd("ls");
 

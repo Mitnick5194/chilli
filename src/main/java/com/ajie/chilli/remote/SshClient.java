@@ -27,7 +27,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 /**
- * jsch封装
+ * jsch封装，阻塞执行
  * 
  *
  * @author niezhenjie
@@ -35,9 +35,10 @@ import com.jcraft.jsch.SftpException;
  */
 public class SshClient {
 	private final static Logger logger = LoggerFactory.getLogger(SshClient.class);
+
+	public static final String DEFAULT_PATH = "/var/www";
 	/** 是否允许trace */
 	protected final static boolean _TraceEnabled = logger.isTraceEnabled();
-
 
 	/** 重连失败最大次数 */
 	public final static int MAX_RETRY_COUNT = 3;
@@ -284,7 +285,7 @@ public class SshClient {
 	 */
 	public boolean upload(String fileName, InputStream stream) throws RemoteException, IOException {
 		// long start = System.currentTimeMillis();
-		return upload(config.getBasePath(), fileName, stream);
+		return upload(DEFAULT_PATH, fileName, stream);
 	}
 
 	/**
@@ -395,7 +396,6 @@ public class SshClient {
 		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
 		config.setMax(5);
 		config.setCore(2);
-		config.setBasePath("/var/www/image/");
 		SshClient client = SshClient.getClient(config);
 		// client.setCloseMode(MODE_DELAY_CLOSE);
 		InputStream stream;

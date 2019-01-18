@@ -12,6 +12,9 @@ import java.rmi.RemoteException;
  */
 public interface SshService {
 
+	/** 默认路径 ~ home */
+	public static final String DEFAULT_PATH = "~";
+
 	/** 默认端口 */
 	public static final int DEFAULT_PORT = 22;
 

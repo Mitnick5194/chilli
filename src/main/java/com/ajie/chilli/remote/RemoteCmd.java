@@ -1,7 +1,8 @@
 package com.ajie.chilli.remote;
 
 import java.io.OutputStream;
-import java.rmi.RemoteException;
+
+import com.ajie.chilli.remote.exception.RemoteException;
 
 /**
  * 远程指令

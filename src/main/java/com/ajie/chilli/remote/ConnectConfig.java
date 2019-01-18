@@ -27,20 +27,26 @@ public class ConnectConfig {
 	/** 端口 */
 	protected int port;
 
-	/** 访问路径，绝对路径，如/var/www */
-	protected String basePath;
-
 	/** 超时值 */
 	protected int timeout;
 
-	/** 核心连接数 */
+	/** 会话核心连接数 */
 	protected int core;
 
-	/** 最大连接数 */
+	/** 会话最大连接数 */
 	protected int max;
 
 	/** 空闲连接（max-core)存活时间 单位ms */
 	protected int keepAliveTime;
+
+	/** 任务池大小 */
+	protected int workerQueueSize;
+
+	public ConnectConfig() {
+		timeout = SshSessionMgr.DEFAULT_TIME_OUT;
+		workerQueueSize = SshSessionMgr.DEFAULT_WAIT_SIZE;
+		encording = "utf-8";
+	}
 
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
@@ -82,14 +88,6 @@ public class ConnectConfig {
 		this.port = port;
 	}
 
-	public String getBasePath() {
-		return basePath;
-	}
-
-	public void setBasePath(String basePath) {
-		this.basePath = basePath;
-	}
-
 	public String getEncording() {
 		return encording;
 	}
@@ -120,6 +118,14 @@ public class ConnectConfig {
 
 	public int getKeepAliveTime() {
 		return keepAliveTime;
+	}
+
+	public void setWorkerQueueSize(int size) {
+		this.workerQueueSize = size;
+	}
+
+	public int getWorkerQueueSize() {
+		return workerQueueSize;
 	}
 
 	public static ConnectConfig valueOf(String username, String password, String host, int port) {

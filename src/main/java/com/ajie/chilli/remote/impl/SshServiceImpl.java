@@ -15,8 +15,10 @@ import com.ajie.chilli.remote.SshService;
  * ssh服务实现
  *
  * @author niezhenjie
- *
+ * 
+ *         Deprecated 使用sshsessionMgr管理的session，各业务逻辑（如上传、命令）独立实现
  */
+@Deprecated
 public class SshServiceImpl implements SshService {
 
 	// private final static Logger logger =
@@ -47,10 +49,6 @@ public class SshServiceImpl implements SshService {
 		client = SshClient.getClient(config);
 	}
 
-	public void setBasePath(String path) {
-		config.setBasePath(path);
-	}
-
 	public void setTimeout(int timeout) {
 		config.setTimeout(timeout);
 	}
@@ -65,7 +63,7 @@ public class SshServiceImpl implements SshService {
 
 	@Override
 	public boolean upload(String name, InputStream stream) throws IOException {
-		return upload(config.getBasePath(), name, stream);
+		return upload(DEFAULT_PATH, name, stream);
 	}
 
 	@Override
@@ -85,7 +83,6 @@ public class SshServiceImpl implements SshService {
 		String name = prop.getProperty("name");
 		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
 		config.setTimeout(1000);
-		config.setBasePath("/var/www/image/");
 		config.setMax(15);
 		config.setCore(1);
 		final SshServiceImpl sshService = new SshServiceImpl(config);
