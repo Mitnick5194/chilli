@@ -16,9 +16,8 @@ import com.ajie.chilli.remote.SshService;
  *
  * @author niezhenjie
  * 
- *         Deprecated 使用sshsessionMgr管理的session，各业务逻辑（如上传、命令）独立实现
  */
-@Deprecated
+@SuppressWarnings("deprecation")
 public class SshServiceImpl implements SshService {
 
 	// private final static Logger logger =
@@ -28,6 +27,7 @@ public class SshServiceImpl implements SshService {
 	private ConnectConfig config;
 
 	/** ssh客户端 */
+
 	private SshClient client;
 
 	public SshServiceImpl() {

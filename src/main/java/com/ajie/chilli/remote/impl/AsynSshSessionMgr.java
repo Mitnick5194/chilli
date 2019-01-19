@@ -40,14 +40,14 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 	public final static int MAX_RETRY_COUNT = 3;
 
 	/** 线程池 */
-	ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 5, 2, TimeUnit.SECONDS,
+	ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 15, 2, TimeUnit.SECONDS,
 			new ArrayBlockingQueue<Runnable>(5), new ThreadPoolExecutor.DiscardPolicy());
 
 	/** 连接池全忙时，等待执行队列 */
 	volatile private BlockingQueue<Worker> workqueue;
 
 	public AsynSshSessionMgr(ConnectConfig config) {
-		this(config, null);
+		this(config, DEFAULT_NAME_PREFIX);
 	}
 
 	public AsynSshSessionMgr(ConnectConfig config, String biz) {
@@ -71,9 +71,11 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 				sessionPool.add(session);
 			}
 		}
-		recycleWatch();
 	}
 
+	/**
+	 * 提交任务
+	 */
 	@Override
 	public void execute(Worker worker) throws RemoteException {
 		if (null == worker)
@@ -81,22 +83,23 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 		addWorker(worker);
 	}
 
+	/**
+	 * 将任务放入任务池中，如果任务池已经满，则等待
+	 * 
+	 * @param worker
+	 * @throws RemoteException
+	 */
 	private void addWorker(Worker worker) throws RemoteException {
 		synchronized (workqueue) {
-			try {
-				while (workqueue.size() >= DEFAULT_WAIT_SIZE) {
-					workqueue.wait();
-				}
-				workqueue.put(worker);
-				workqueue.notifyAll();
-			} catch (InterruptedException e) {
+			// 任务池满了，等吧
+			while (workqueue.size() >= config.getWorkerQueueSize()) {
 				try {
-					workqueue.put(worker);// 重试
-					workqueue.notifyAll();
-				} catch (InterruptedException e1) {
-					logger.error("", e1);
+					workqueue.wait();
+				} catch (InterruptedException e) {
 				}
 			}
+			workqueue.offer(worker);
+			workqueue.notifyAll();
 		}
 	}
 
@@ -107,27 +110,33 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 		Thread t = new Thread() {
 			public void run() {
 				while (true) {
+					Worker work = null;
+					SessionExt session = null;
 					synchronized (workqueue) {
 						try {
 							while (workqueue.size() == 0) {
 								workqueue.wait();
 							}
-							final SessionExt session = getSession();
-							final Worker work = workqueue.take();
-							executor.execute(new Runnable() {
-								@Override
-								public void run() {
-									runWorker(session, work);
-								}
-							});
-							// 执行完毕，释放锁并唤醒其他线程
-							workqueue.notifyAll();
+							session = getSession();
+							if (null == session) {
+								continue;
+							}
+							work = workqueue.take();
 						} catch (InterruptedException e) {
 							logger.error("", e);
+						} finally {
+							// 执行完毕，唤醒其他线程
+							workqueue.notifyAll();
 						}
 					}
-					// 退出同步块再执行
-
+					final SessionExt sess = session;
+					final Worker worker = work;
+					executor.execute(new Runnable() {
+						@Override
+						public void run() {
+							runWorker(sess, worker);
+						}
+					});
 				}
 			};
 		};
@@ -142,21 +151,29 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 	 * @throws .RemoteException
 	 */
 	private void runWorker(SessionExt session, Worker worker) {
-		if (null == session || null == worker)
-			return;
 		try {
 			worker.run(session);
 		} catch (Exception e) {
-			logger.error("", e);
+			// 执行失败，把worker放回队列
+			try {
+				addWorker(worker);
+			} catch (RemoteException e1) {
+				logger.error("任务尝试放回队列失败");
+			}
 		} finally {
 			session.disconnectChannel();
 			// 因为get的时候会锁，这里不需要锁
-			session.setState(SessionExt.STATE_IDLE);
+			session.idle();
 		}
 	}
 
-	public String toString() {
-		return config.toString();
+	public String getInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("work size:").append(workqueue.size());
+		for (SessionExt session : sessionPool) {
+			sb.append(session.toString());
+		}
+		return sb.toString();
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
@@ -172,19 +189,20 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 		config.setTimeout(30000);
 		config.setMax(10);
 		config.setCore(2);
+		config.setWorkerQueueSize(10);
 		final AsynSshSessionMgr mgr = new AsynSshSessionMgr(config);
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 100; i++) {
 			final int j = i;
 			Thread t = new Thread() {
 				public void run() {
 					try {
 						mgr.execute(new Worker() {
 							@Override
-							public void run(SessionExt session) {
+							public void run(SessionExt session) throws RemoteException {
 								try {
 									InputStream stream = new FileInputStream(new File(
 											"C:/Users/ajie/Desktop/arrow_top.png"));
-									Channel channel = session.openChannel(3000, "sftp");
+									Channel channel = session.openChannel(30000, "sftp");
 									ChannelSftp sftp = (ChannelSftp) channel;
 									OutputStream out = sftp.put("/var/www/image/testimg" + (j + 1)
 											+ ".png");
@@ -197,8 +215,9 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 									out.flush();
 									stream.close();
 									out.close();
+									System.out.println(j + " 上传成功");
 								} catch (Exception e) {
-									e.printStackTrace();
+									throw new RemoteException(j + "");
 								}
 							}
 						});
@@ -207,9 +226,9 @@ public class AsynSshSessionMgr extends AbstractSshSessionMgr {
 					}
 				};
 			};
+			t.setName("upload-thread-" + j);
 			t.start();
 		}
-
 	}
 
 	@Override

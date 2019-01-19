@@ -29,10 +29,12 @@ import com.jcraft.jsch.SftpException;
 /**
  * jsch封装，阻塞执行
  * 
- *
+ * Deprecated 使用sshsessionMgr管理的session，各业务逻辑（如上传、命令）独立实现
+ * 
  * @author niezhenjie
  *
  */
+@Deprecated
 public class SshClient {
 	private final static Logger logger = LoggerFactory.getLogger(SshClient.class);
 

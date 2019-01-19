@@ -44,10 +44,7 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 	volatile protected List<SessionExt> sessionPool = Collections.emptyList();
 
 	public AbstractSshSessionMgr(ConnectConfig config) {
-		jsch = new JSch();
-		this.config = config;
-		sessionPool = new ArrayList<SessionExt>(config.getMax());
-		this.biz = DEFAULT_NAME_PREFIX;
+		this(config, DEFAULT_NAME_PREFIX);
 	}
 
 	public AbstractSshSessionMgr(ConnectConfig config, String biz) {
@@ -55,6 +52,7 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 		this.config = config;
 		sessionPool = new ArrayList<SessionExt>(config.getMax());
 		this.biz = biz;
+		recycleWatch();
 	}
 
 	abstract public Logger getLogger();
@@ -91,6 +89,7 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 			@Override
 			public void run() {
 				recycle();
+				// getLogger().info(getInfo());
 			}
 		};
 		ScheduledExecutorService service = Executors
@@ -102,7 +101,8 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 						return t;
 					}
 				});
-		service.scheduleAtFixedRate(run, 3, 3, TimeUnit.MINUTES);// 3min
+		// service.scheduleAtFixedRate(run, 1, 1, TimeUnit.MINUTES);// 3min
+		service.scheduleAtFixedRate(run, 90, 90, TimeUnit.SECONDS);// 3min
 
 	}
 
@@ -119,12 +119,12 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 				session.setState(SessionExt.STATE_DESTORING);
 				session.recycle();
 				session.setState(SessionExt.STATE_DESTORIED);
-				// if (_TraceEnabled) {
-				getLogger().info(
-						Thread.currentThread().getName() + "正在回收ssh连接 " + session.toString(),
-						"current sessionPool size:" + sessionPool.size() + " core:"
-								+ config.getCore());
-				// }
+				if (getLogger().isTraceEnabled()) {
+					getLogger().info(
+							Thread.currentThread().getName() + "正在回收ssh连接 " + session.toString(),
+							"current sessionPool size:" + sessionPool.size() + " core:"
+									+ config.getCore());
+				}
 			}
 		}
 	}
@@ -144,16 +144,15 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 					return session;
 				}
 			}
-			synchronized (sessionPool) {
-				if (sessionPool.size() < config.getMax()) {
-					// 会话创建数还没有达到最大值，创建
-					SessionExt session = openSession();
-					session.setState(SessionExt.STATE_ACTIVE);
-					sessionPool.add(session);
-					return session;
-				}
+			if (sessionPool.size() < config.getMax()) {
+				// 会话创建数还没有达到最大值，创建
+				SessionExt session = openSession();
+				session.active();
+				sessionPool.add(session);
+				return session;
 			}
 		}
+		// 连接池全忙，根据子类的实现做响应的处理
 		return null;
 	}
 
@@ -188,5 +187,7 @@ public abstract class AbstractSshSessionMgr implements SshSessionMgr {
 		}
 		return null;
 	}
+
+	// abstract public String getInfo();
 
 }

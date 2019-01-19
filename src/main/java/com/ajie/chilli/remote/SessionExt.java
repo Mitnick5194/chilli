@@ -13,7 +13,7 @@ import com.jcraft.jsch.Session;
 public class SessionExt {
 
 	/** 连接活跃状态 */
-	public static final int STATE_ACTIVE = 0x100;
+	public static final int STATE_ACTIVE = 1 << 3;
 	/** 空闲状态 */
 	public static final int STATE_IDLE = 1 << 0;
 	/** 正在销毁 */
@@ -72,9 +72,11 @@ public class SessionExt {
 	}
 
 	/**
-	 * 将状态设为空闲
+	 * 将状态设为空闲并关闭channel
 	 */
 	public void idle() {
+		/*if (null != channel && channel.isConnected())
+			channel.disconnect();*/
 		this.state = STATE_IDLE;
 	}
 
@@ -154,6 +156,7 @@ public class SessionExt {
 		// 创建sftp通信通道
 		Channel channel = session.openChannel(type);
 		channel.connect(timeout);
+		this.channel = channel;
 		return channel;
 	}
 

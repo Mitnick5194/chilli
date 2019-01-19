@@ -3,6 +3,7 @@ package com.ajie.chilli.remote.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -98,7 +99,7 @@ public class UploadServiceImpl implements UploadService {
 					out.close();
 				} catch (JSchException e) {
 					logger.error("文件上传失败", e);
-					throw new RemoteException();
+					throw new RemoteException("上传文件失败", e);
 				} catch (SftpException e) {
 					logger.error("文件上传失败", e);
 					throw new RemoteException();
@@ -154,7 +155,7 @@ public class UploadServiceImpl implements UploadService {
 		return cd;
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		Properties prop = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("server.properties");
@@ -164,16 +165,30 @@ public class UploadServiceImpl implements UploadService {
 		String name = prop.getProperty("name");
 		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
 		// timeout一般来说需要设置大一点，否则会出现各种超时
-		config.setTimeout(30000);
+		config.setTimeout(3000);
 		config.setMax(10);
-		config.setCore(2);
-		final AsynSshSessionMgr mgr = new AsynSshSessionMgr(config);
-		UploadService upload = new UploadServiceImpl(mgr);
-		InputStream stream = new FileInputStream(new File("C:/Users/ajie/Desktop/arrow_top.png"));
-		try {
-			upload.upload(stream, "/var/www/image", "testupload.png");
-		} catch (RemoteException e) {
-			e.printStackTrace();
+		config.setCore(0);
+		// final AsynSshSessionMgr mgr = new AsynSshSessionMgr(config);
+		final SshSessionMgr mgr = new AsynSshSessionMgr(config);
+		final UploadService upload = new UploadServiceImpl(mgr);
+		for (int i = 0; i < 10; i++) {
+			final int j = i;
+			Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						InputStream stream = new FileInputStream(new File(
+								"C:/Users/ajie/Desktop/103264437383964562.jpg"));
+						upload.upload(stream, "/var/www/image", "bigimg" + j + ".png");
+					} catch (RemoteException e) {
+
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			t.start();
 		}
+
 	}
 }
