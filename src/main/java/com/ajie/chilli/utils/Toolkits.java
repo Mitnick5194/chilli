@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -13,9 +14,53 @@ import java.util.Random;
  * 
  * @author niezhenjie
  */
-public class Toolkits {
+final public class Toolkits {
+
+	public final static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+			'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+			's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+			'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+	public static final Random _Random = new Random();
 
 	private Toolkits() {
+	}
+
+	/**
+	 * 生成由0-9a-zA-z组成的长度为16的字串
+	 * 
+	 * @return
+	 */
+	static public String uniqueKey() {
+		return uniqueKey(16);
+	}
+
+	/**
+	 * 生成由0-9a-zA-z组成的唯一名字
+	 * 
+	 * @param len
+	 * @return
+	 */
+	static public String uniqueKey(int len) {
+		if (0 == len)
+			return "";
+		int timestamptlen = 13;// 时间戳长度
+		StringBuilder sb = new StringBuilder();
+		if (len < timestamptlen) {
+			for (int i = 0; i < len; i++) {
+				int idx = getRandomRange(0, 61);
+				sb.append(digits[idx]);
+			}
+			return sb.toString();
+		}
+		len -= timestamptlen;
+		for (int i = 0; i < len; i++) {
+			int idx = getRandomRange(0, 61);
+			sb.append(digits[idx]);
+		}
+		Date now = new Date();
+		sb.append(now.getTime());
+		return sb.toString();
 	}
 
 	/**
@@ -100,6 +145,19 @@ public class Toolkits {
 	}
 
 	/**
+	 * 数字型的十六进制转十进制
+	 * 
+	 * @param hex
+	 * @return
+	 * @throws NumberFormatException
+	 */
+	public static int Hex2Deci(int hex) throws NumberFormatException {
+		if (0 == hex)
+			return 0;
+		return Integer.valueOf(String.valueOf(hex), 16);
+	}
+
+	/**
 	 * 生成32位md5码
 	 * 
 	 * @param password
@@ -132,8 +190,6 @@ public class Toolkits {
 
 	}
 
-	public static final Random _Random = new Random();
-
 	/**
 	 * 随机生成从 [min - max]随机数
 	 * 
@@ -148,6 +204,9 @@ public class Toolkits {
 
 	// 测试
 	public static void main(String[] args) {
+		String uniqueKey = uniqueKey(32);
+		System.out.println(uniqueKey);
+
 		final HashSet<String> set = new HashSet<String>();
 		final ArrayList<String> list = new ArrayList<String>();
 		for (int i = 0; i < 1000; i++) {

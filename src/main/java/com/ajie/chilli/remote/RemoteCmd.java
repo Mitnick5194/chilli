@@ -45,7 +45,8 @@ public interface RemoteCmd {
 	 * 
 	 * @param cmd
 	 *            指令
+	 * @throws RemoteException 
 	 */
-	void voidResultcmd(String cmd);
+	void voidResultcmd(String cmd) throws RemoteException;
 
 }
