@@ -118,6 +118,10 @@ public class JsonUtils {
 		return s;
 	}
 
+	public static <T> T toBean(JSON json, Class<T> clazz) {
+		return JSON.toJavaObject(json, clazz);
+	}
+
 	public static void main(String[] args) {
 		List<User> list = new ArrayList<User>();
 		list.add(new User(1, "a"));

@@ -138,17 +138,18 @@ public class Base64 {
 	protected static int merge(boolean isdecode, byte... bytes) {
 		int merge = 0, len = bytes.length;
 		for (int i = 0; i < len; i++) {
+			// 0xFF截取高位，负数转换
+			int b = bytes[i] & 0xFF;
 			int step = len - i - 1;
 			if (isdecode) {
-				// 0xFF截取高位，负数转换
 				if (step > 0) {
-					merge |= ((bytes[i] & 0xFF) << (len - i - 1) * 6);
+					merge |= (b << (step * 6));
 				} else {
-					merge |= (bytes[i] & 0xFF);
+					merge |= (b & 0xFF);
 				}
 			} else {
 				// 0xFF截取高位，负数转换
-				merge |= ((bytes[i] & 0xFF) << (step * 8));
+				merge |= (b << (step * 8));
 			}
 		}
 		return merge;

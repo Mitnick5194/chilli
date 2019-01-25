@@ -4,9 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Random;
 
 /**
@@ -16,10 +14,15 @@ import java.util.Random;
  */
 final public class Toolkits {
 
+	/** 数字字母表 */
 	public final static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
 			'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
 			's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
 			'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+	/** 十六进制对照表 */
+	public final static char[] hexTable = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+			'b', 'c', 'd', 'e', 'f' };
 
 	public static final Random _Random = new Random();
 
@@ -36,7 +39,8 @@ final public class Toolkits {
 	}
 
 	/**
-	 * 生成由0-9a-zA-z组成的唯一名字
+	 * 生成由0-9a-zA-z组成的唯一名字，经测试，此方法的唯一性最高，生成16位数，在5000个并发下测试10次没有出现过冲突
+	 * 但是这个在性能上消耗大于genRandomStr，在并发很大时，优先选择此方法
 	 * 
 	 * @param len
 	 * @return
@@ -46,7 +50,7 @@ final public class Toolkits {
 			return "";
 		int timestamptlen = 13;// 时间戳长度
 		StringBuilder sb = new StringBuilder();
-		if (len < timestamptlen) {
+		if (len < timestamptlen) { // 长度少于13，直接使用13个随机数做对照
 			for (int i = 0; i < len; i++) {
 				int idx = getRandomRange(0, 61);
 				sb.append(digits[idx]);
@@ -93,11 +97,13 @@ final public class Toolkits {
 
 	/**
 	 * 16位随机数 <br>
-	 * 当前时间戳+从6为随机数里截取的三位数，经测试，同时开100个线程生成的id没有出现过重复，但是当<br>
-	 * 线程数到达1000个时，会出现几个重复，在并发不是很大的情况下，可以使用
+	 * 当前时间戳+从6为随机数里截取的三位数，经测试，同时开100个线程生成的id没有出现过重复<br>
 	 * 
 	 * @return
+	 * 
+	 * @Deprecated 使用genRandomStr或uniqueKey
 	 */
+	@Deprecated
 	public static String gen16UniqueId() {
 		long currentTimeMillis = System.currentTimeMillis(); // 当前时间戳
 		Random random = new Random();
@@ -121,11 +127,69 @@ final public class Toolkits {
 	}
 
 	/**
+	 * 随机生成指定长度的字串，长度越小，冲突的几率越大，经测试5000个并发生成16位冲突在10个以内，在并发不是很大时，可以使用，并发大时，
+	 * 请使用uniqueKey，此方法性能高于uniqueKey
+	 * 
+	 * @param len
+	 * @return
+	 */
+	public static String genRandomStr(int len) {
+		StringBuilder sb = new StringBuilder();
+		String rbt = genRandomByTimestamp(sb);
+		if (rbt.length() > len)
+			return rbt.substring(0, len);
+		if (rbt.length() == len)
+			return rbt;
+		while (rbt.length() < len) {
+			rbt = genRandomByTimestamp(sb);
+		}
+		return rbt.substring(0, len);
+	}
+
+	/**
+	 * 当前时间戳每一个数加上一个随机数再根据对照表获得一个13位的字串
+	 * 
+	 * 时间戳是13位，到2286年失效
+	 * 
+	 * @return
+	 */
+	public static String genRandomByTimestamp(StringBuilder sb) {
+		String now = String.valueOf(new Date().getTime());
+		int rad = getRandomRange(0, 52);// 对照表最大下标为61，now单个数最大值是9
+		if (null == sb)
+			sb = new StringBuilder();
+		for (int i = 0; i < 13; i++) {
+			int dec = getIndexByChar(now.charAt(i));
+			sb.append(digits[dec + rad]);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * 字符c在对照表digits里对象的下标
+	 * 
+	 * @param c
+	 * @return
+	 */
+	private static int getIndexByChar(char c) {
+		for (int i = 0; i < digits.length; i++) {
+			char ch = digits[i];
+			if (ch == c) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
 	 * 0x开头的十六进制转十进制
 	 * 
 	 * @param hex
 	 * @return
+	 * 
+	 * @Deprecated请使用hex2deci
 	 */
+	@Deprecated
 	public static int Hex2Deci(String hex) throws NumberFormatException {
 		if (null == hex) {
 			throw new NumberFormatException("格式错误，参数格式应为0x开头的十六进制: " + hex);
@@ -145,6 +209,50 @@ final public class Toolkits {
 	}
 
 	/**
+	 * 十六进制转十进制
+	 * 
+	 * @param hex
+	 *            十六进制 支持0x开头
+	 * @return
+	 */
+	public static int hex2deci(String hex) {
+		if (null == hex)
+			throw new NumberFormatException("param is null");
+		// 去除前面的0x
+		if (hex.startsWith("0x"))
+			hex = hex.substring(2);
+		if (hex.length() == 0)
+			throw new NumberFormatException("param is invalid: " + hex);
+		int len = hex.length();
+		int i = 0;
+		int result = 0;
+		while (i < len) {
+			int dec = getHexChar(hex.charAt(i));
+			if (-1 == dec)
+				throw new NumberFormatException("param is invalid: " + hex);
+			result += dec << ((len - (i++) - 1) * 4);
+		}
+		return result;
+	}
+
+	/**
+	 * 十六进制的字符对应的十进制数字
+	 * 
+	 * @param c
+	 * @return
+	 */
+	private static int getHexChar(char c) {
+		for (int i = 0; i < hexTable.length; i++) {
+			char hex = hexTable[i];
+			if (hex <= 90 && hex >= 65) // 大写转小写
+				hex += 32;
+			if (hex == c)
+				return i;
+		}
+		return -1;
+	}
+
+	/**
 	 * 数字型的十六进制转十进制
 	 * 
 	 * @param hex
@@ -152,9 +260,7 @@ final public class Toolkits {
 	 * @throws NumberFormatException
 	 */
 	public static int Hex2Deci(int hex) throws NumberFormatException {
-		if (0 == hex)
-			return 0;
-		return Integer.valueOf(String.valueOf(hex), 16);
+		return hex2deci(String.valueOf(hex));
 	}
 
 	/**
@@ -203,19 +309,28 @@ final public class Toolkits {
 	}
 
 	// 测试
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
+
+		int hex2deci = hex2deci("0x001");
+		System.out.println(hex2deci);
+		System.out.println("========");
+
 		String uniqueKey = uniqueKey(32);
 		System.out.println(uniqueKey);
 
-		final HashSet<String> set = new HashSet<String>();
+		System.out.println("==========");
+
+		/*final HashSet<String> set = new HashSet<String>();
 		final ArrayList<String> list = new ArrayList<String>();
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 5000; i++) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					synchronized (set) {
-						String id = Toolkits.gen16UniqueId();
-						// set.add(id);
+						String id = Toolkits.uniqueKey(16);
+						// String id = gen16UniqueId();
+						// System.out.println(id);
+						set.add(id);
 						list.add(id);
 					}
 				}
@@ -224,12 +339,11 @@ final public class Toolkits {
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println(set.size());
-		System.out.println(list.size());
-
+		System.out.println(list.size());*/
+		/*
 		System.out.println("================================");
 		for (int i = 0; i < list.size(); i++) {
 			String str1 = list.get(i);
@@ -240,7 +354,7 @@ final public class Toolkits {
 				}
 			}
 		}
-		System.out.println("================================");
+		System.out.println("================================");*/
 		/*	for (int i = 0; i < list.size(); i++) {
 				System.out.println(i + "： " + list.get(i));
 			}*/
