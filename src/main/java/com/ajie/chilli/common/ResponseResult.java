@@ -13,6 +13,9 @@ public class ResponseResult {
 	/** 成功状态码 , 调用结果为空 */
 	public static int CODE_NORET = 300;
 
+	/** session过期状态吗 */
+	public static final int CODE_SESSION_INVALID = 400;
+
 	/** 失败状态，有错误或异常抛出 */
 	public static int CODE_ERR = 500;
 
@@ -74,6 +77,26 @@ public class ResponseResult {
 		ResponseResult ret = new ResponseResult();
 		ret.setCode(code);
 		ret.setData(data);
+		return ret;
+	}
+
+	public static ResponseResult success(Object data) {
+		ResponseResult ret = new ResponseResult();
+		ret.setCode(CODE_SUC);
+		ret.setData(data);
+		return ret;
+	}
+
+	public static ResponseResult error(Object data) {
+		ResponseResult ret = new ResponseResult();
+		ret.setCode(CODE_ERR);
+		ret.setData(data);
+		return ret;
+	}
+
+	public static ResponseResult empty() {
+		ResponseResult ret = new ResponseResult();
+		ret.setCode(CODE_NORET);
 		return ret;
 	}
 

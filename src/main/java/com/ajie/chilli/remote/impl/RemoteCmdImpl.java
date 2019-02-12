@@ -1,8 +1,10 @@
 package com.ajie.chilli.remote.impl;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
@@ -118,6 +120,25 @@ public class RemoteCmdImpl implements RemoteCmd {
 		}
 	}
 
+	@Override
+	public String execCmd(String cmd) {
+		if (null == cmd)
+			return "";
+		BufferedReader reader = null;
+		StringBuilder sb = new StringBuilder();
+		try {
+			Process proc = Runtime.getRuntime().exec("cmd /c start /b " + cmd);
+			reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return sb.toString();
+	}
+
 	public static void main(String[] args) throws IOException, RemoteException {
 		Properties prop = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader()
@@ -177,4 +198,5 @@ public class RemoteCmdImpl implements RemoteCmd {
 			e.printStackTrace();
 		}*/
 	}
+
 }

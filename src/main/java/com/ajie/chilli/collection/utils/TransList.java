@@ -4,7 +4,7 @@ import java.util.AbstractList;
 import java.util.List;
 
 /**
- * 列表由V到E的转换
+ * 列表由V到E的转换，因为继承了AbstractList，所以返回值可以使用List接受
  * 
  * @author niezhenjie
  * 

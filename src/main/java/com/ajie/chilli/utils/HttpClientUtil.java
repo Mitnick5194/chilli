@@ -5,8 +5,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -47,6 +49,23 @@ public class HttpClientUtil {
 	 * @throws IOException
 	 */
 	public static String doGet(String url, Map<String, String> params) throws IOException {
+		return doGet(url, params, null);
+	}
+
+	/**
+	 * get方式请求
+	 * 
+	 * @param url
+	 *            请求连接
+	 * @param params
+	 *            请求参数
+	 * @param headers
+	 *            请求头
+	 * @return
+	 * @throws IOException
+	 */
+	public static String doGet(String url, Map<String, String> params, Map<String, String> headers)
+			throws IOException {
 		// 创建httpclient对象
 		CloseableHttpClient client = HttpClients.createDefault();
 		String result = "";
@@ -60,6 +79,10 @@ public class HttpClientUtil {
 			}
 			URI uri = builder.build();
 			HttpGet get = new HttpGet(uri);
+			if (null != headers) {
+				for (Entry<String, String> entry : headers.entrySet())
+					get.addHeader(entry.getKey(), entry.getValue());
+			}
 			response = client.execute(get);
 			if (response.getStatusLine().getStatusCode() == SUC_CODE) {
 				result = EntityUtils.toString(response.getEntity(), "utf-8");
@@ -90,6 +113,20 @@ public class HttpClientUtil {
 	 * @throws IOException
 	 */
 	public static String doPost(String url, Map<String, String> params) throws IOException {
+		return doPost(url, params, null);
+	}
+
+	/**
+	 * post请求
+	 * 
+	 * @param url
+	 * @param params
+	 * @param 请求头信息
+	 * @return
+	 * @throws IOException
+	 */
+	public static String doPost(String url, Map<String, String> params, Map<String, String> headers)
+			throws IOException {
 		CloseableHttpClient client = HttpClients.createDefault();
 		String result = "";
 		CloseableHttpResponse response = null;
@@ -102,6 +139,10 @@ public class HttpClientUtil {
 				}
 				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList);
 				post.setEntity(entity);
+			}
+			if (null != headers) {
+				for (Entry<String, String> entry : headers.entrySet())
+					post.addHeader(entry.getKey(), entry.getValue());
 			}
 			response = client.execute(post);
 			result = EntityUtils.toString(response.getEntity(), "utf-8");
@@ -123,11 +164,13 @@ public class HttpClientUtil {
 	public static String doPost(String url) throws IOException {
 		return doPost(url, null);
 	}
-	
+
 	public static void main(String[] args) {
-		String url = "http://www.baidu.com1";
+		String url = "http://www.baidu.com/s";
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("wd", "新浪");
 		try {
-			String ret = HttpClientUtil.doGet(url);
+			String ret = HttpClientUtil.doGet(url, params);
 			System.out.println(ret);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

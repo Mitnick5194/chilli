@@ -297,6 +297,43 @@ final public class Toolkits {
 	}
 
 	/**
+	 * 将字符串转换成数字
+	 * 
+	 * @param str
+	 * @return
+	 */
+	static public int toInt(String str) {
+		if (null == str)
+			throw new IllegalArgumentException("转换字符为空");
+		try {
+			Integer ret = Integer.valueOf(str);
+			return ret;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("无法转换为数字【" + str + "】");
+		}
+
+	}
+
+	/**
+	 * 将字符串转换成数字
+	 * 
+	 * @param str
+	 * @param defaultValue
+	 *            默认值
+	 * @return
+	 */
+	static public int toInt(String str, int defaultValue) {
+		if (null == str)
+			return defaultValue;
+		try {
+			Integer ret = Integer.valueOf(str);
+			return ret;
+		} catch (Exception e) {
+		}
+		return defaultValue;
+	}
+
+	/**
 	 * 随机生成从 [min - max]随机数
 	 * 
 	 * @param min

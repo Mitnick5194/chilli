@@ -32,6 +32,11 @@ public class KVpair {
 		this.id = id;
 	}
 
+	private KVpair(int id, Object value) {
+		this.value = value;
+		this.id = id;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -39,7 +44,7 @@ public class KVpair {
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setValue(Object obj) {
 		this.value = obj;
 	}
@@ -66,8 +71,21 @@ public class KVpair {
 		return kv;
 	}
 
-	public static KVpair valueOf(String name, String value, int id) {
+	public static KVpair valueOf(String name, Object value, int id) {
 		KVpair kv = new KVpair(name, value, id);
 		return kv;
+	}
+
+	public static KVpair valueOf(int id, Object value) {
+		KVpair kv = new KVpair(id, value);
+		return kv;
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{id:").append(id).append(",");
+		sb.append("name:").append(name).append(",");
+		sb.append("value:").append(value).append("}");
+		return sb.toString();
 	}
 }

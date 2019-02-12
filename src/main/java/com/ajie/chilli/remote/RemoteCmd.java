@@ -45,8 +45,16 @@ public interface RemoteCmd {
 	 * 
 	 * @param cmd
 	 *            指令
-	 * @throws RemoteException 
+	 * @throws RemoteException
 	 */
 	void voidResultcmd(String cmd) throws RemoteException;
+
+	/**
+	 * 执行window的cmd名字，这不是远程命令
+	 * 
+	 * @param cmd
+	 * @return
+	 */
+	String execCmd(String cmd);
 
 }
