@@ -140,10 +140,10 @@ public class PictureServiceImpl implements PictureService {
 		}
 		if (address.startsWith("/"))
 			address.substring(1);
+		sb.append(address);
 		if (!address.endsWith("/")) {
 			sb.append("/");
 		}
-		sb.append(address);
 		sb.append(fileName);
 		return sb.toString();
 	}

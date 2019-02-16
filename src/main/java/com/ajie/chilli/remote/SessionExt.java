@@ -177,7 +177,6 @@ public class SessionExt {
 			return;
 		if (!channel.isConnected())
 			return;
-		System.out.println(Thread.currentThread().getName());
 		channel.disconnect();
 	}
 
