@@ -150,16 +150,4 @@ public class ConnectConfig {
 		sb.append("keepAliveTime:").append(keepAliveTime).append("}");
 		return sb.toString();
 	}
-
-	public static void main(String[] args) throws IOException {
-		Properties prop = new Properties();
-		InputStream is = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream("server.properties");
-		prop.load(is);
-		String host = prop.getProperty("host");
-		String passwd = prop.getProperty("passwd");
-		String name = prop.getProperty("name");
-		ConnectConfig config = ConnectConfig.valueOf(name, passwd, host, 22);
-		System.out.println(config.toString());
-	}
 }

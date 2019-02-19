@@ -68,6 +68,11 @@ public class StringUtils {
 		System.out.println(ret);
 	}
 
+	/**
+	 * 将数据的数据置空，加快gc回收
+	 * 
+	 * @param datas
+	 */
 	public static void deleteArrayEle(String[] datas) {
 		for (int i = 0; i < datas.length; i++) {
 			datas[i] = null;

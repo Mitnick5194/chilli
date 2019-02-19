@@ -1,8 +1,12 @@
 package com.ajie.chilli.utils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 日期处理工具
@@ -11,7 +15,7 @@ import java.util.Date;
  *
  */
 public final class TimeUtil {
-
+	public static Logger logger = LoggerFactory.getLogger(TimeUtil.class);
 	/** yyyy-MM-dd HH:mm:ss */
 	public static final SimpleDateFormat _DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	/** yyyy-MM-dd HH:mm */
@@ -209,5 +213,51 @@ public final class TimeUtil {
 			date2 = calendar.getTime();
 		}
 		return (int) ((date2.getTime() - date1.getTime()) / ONEDAY);
+	}
+
+	/**
+	 * 字符串转换成日期格式，支持格式: yyyy-MM-dd HH:mm:ss、yyyy-MM-dd HH:mm、yyyy-MM-dd、yyyyMMdd
+	 * yyyyMMddHHmm、yyyyMMddHHmmss
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static Date parse(String str) {
+		if (null == str || str.length() < 8)
+			return null;
+		int len = str.length();
+		Date date = null;
+		try {
+			if (len == 19) { // yyyy-MM-dd HH:mm:ss
+				synchronized (_DATE) {
+					date = _DATE.parse(str);
+				}
+			} else if (len == 16) { // yyyy-MM-dd HH:ss
+				synchronized (_DATE_HM) {
+					date = _DATE_HM.parse(str);
+				}
+			} else if (len == 14) { // yyyyMMddHHmmss
+				synchronized (_COMPACT_DATE) {
+					date = _COMPACT_DATE.parse(str);
+				}
+			} else if (len == 12) { // yyyyMMddHHmm
+				synchronized (_COMPACT_DATE_HM) {
+					date = _COMPACT_DATE_HM.parse(str);
+				}
+			} else if (len == 10) { // yyyy-MM-dd
+				synchronized (date) {
+					date = _YMD.parse(str);
+				}
+			} else if (len == 8) { // yyyyMMdd
+				synchronized (_COMPACT_YMD) {
+					date = _COMPACT_YMD.parse(str);
+				}
+			} else {
+				logger.warn("解析失败，格式错误：" + str);
+			}
+		} catch (ParseException e) {
+			logger.warn("解析失败：" + str, e);
+		}
+		return date;
 	}
 }

@@ -29,7 +29,7 @@ public class TimingTask implements Runnable {
 	 * @param firstExecute
 	 * @param interval
 	 */
-	public TimingTask(Worker worker, Date firstExecuteDate, int interVal) {
+	public TimingTask(Worker worker, Date firstExecuteDate, long interVal) {
 		this.worker = worker;
 		this.firstExecute = firstExecuteDate;
 		this.interval = interVal;
@@ -50,13 +50,13 @@ public class TimingTask implements Runnable {
 			}
 		} else { // 周期性执行
 			if (delay >= 0) {
-				service.scheduleAtFixedRate(this, 90, 90, TimeUnit.MILLISECONDS);
+				service.scheduleAtFixedRate(this, delay, interVal, TimeUnit.MILLISECONDS);
 			} else {
 				// 首次开始的时间已经过去了，根据interval计算下次运行的时间吧
 				delay = Math.abs(delay);
 				// 计算过去了的时间是多少个周期，如3点运行，周期是4小时，现在是9点，则超过了一个周期，下次运行是第二个周期的时间：3+4+4
-				int mod = (int) (delay % interval);
-				long next = firstExecute.getTime() + ((mod + 1) * interval);
+				int time = (int) (delay / interval);
+				long next = ((time + 1) * interval) - delay;
 				service.scheduleAtFixedRate(this, next, interval, TimeUnit.MILLISECONDS);
 			}
 		}

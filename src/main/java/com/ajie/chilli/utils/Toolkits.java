@@ -290,7 +290,7 @@ final public class Toolkits {
 			// 标准的md5加密后的结果
 			return buffer.toString();
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			return "";
 		}
 
