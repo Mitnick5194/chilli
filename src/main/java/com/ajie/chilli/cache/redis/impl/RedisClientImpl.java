@@ -1,5 +1,8 @@
 package com.ajie.chilli.cache.redis.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -30,8 +33,7 @@ import com.ajie.chilli.utils.common.StringUtils;
  * @author niezhenjie
  */
 public class RedisClientImpl implements RedisClient {
-	// private static final Logger logger =
-	// LoggerFactory.getLogger(RedisClientImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(RedisClientImpl.class);
 
 	/**
 	 * 为了兼容更多的场景，这里使用构造注入而不适用注解注入
@@ -71,10 +73,16 @@ public class RedisClientImpl implements RedisClient {
 
 	@Override
 	public String get(String key) {
-		Jedis jedis = jedisPool.getResource();
-		String ret = jedis.get(key);
-		jedis.close();
+		String ret = null;
+		try {
+			Jedis jedis = jedisPool.getResource();
+			ret = jedis.get(key);
+			jedis.close();
+		} catch (Exception e) {
+			logger.error("无法从redis中获取值", e);
+		}
 		return ret;
+
 	}
 
 	@Override
@@ -84,8 +92,9 @@ public class RedisClientImpl implements RedisClient {
 			Object ret = JsonUtils.toBean(str);
 			return ret;
 		} catch (Exception e) {
-			throw new RedisException("无法将字串【" + str + "】转换为bean对象", e);
+			logger.error("无法将字串【" + str + "】转换为bean对象", e);
 		}
+		return null;
 	}
 
 	@Override
@@ -101,19 +110,28 @@ public class RedisClientImpl implements RedisClient {
 	}
 
 	@Override
-	public boolean del(String key) {
-		Jedis jedis = jedisPool.getResource();
-		long ret = jedis.del(key);
-		jedis.close();
-		return ret > 0;
+	public boolean del(String key) throws RedisException {
+		try {
+			Jedis jedis = jedisPool.getResource();
+			long ret = jedis.del(key);
+			jedis.close();
+			return ret > 0;
+		} catch (Exception e) {
+			throw new RedisException("删除redis值异常", e);
+		}
 	}
 
 	@Override
-	public long expire(String key, int seconds) {
-		Jedis jedis = jedisPool.getResource();
-		long ret = jedis.expire(key, seconds);
-		jedis.close();
-		return ret;
+	public long expire(String key, int seconds) throws RedisException {
+		try {
+			Jedis jedis = jedisPool.getResource();
+			long ret = jedis.expire(key, seconds);
+			jedis.close();
+			return ret;
+		} catch (Exception e) {
+			throw new RedisException(e);
+		}
+
 	}
 
 	@Override
@@ -129,31 +147,43 @@ public class RedisClientImpl implements RedisClient {
 	}
 
 	@Override
-	public long hset(String key, String field, String value) {
+	public long hset(String key, String field, String value) throws RedisException {
 		assertKV(field, value);
-		Jedis jedis = jedisPool.getResource();
-		long ret = jedis.hset(key, field, value);
-		jedis.close();
-		return ret;
+		try {
+			Jedis jedis = jedisPool.getResource();
+			long ret = jedis.hset(key, field, value);
+			jedis.close();
+			return ret;
+		} catch (Exception e) {
+			throw new RedisException("无法加入redis缓存{key:" + key + ",field:" + field + ",value:"
+					+ value + "}", e);
+		}
+
 	}
 
 	@Override
 	public String hget(String key, String field) {
-		Jedis jedis = jedisPool.getResource();
-		String ret = jedis.hget(key, field);
-		jedis.close();
-		return ret;
+		try {
+			Jedis jedis = jedisPool.getResource();
+			String ret = jedis.hget(key, field);
+			jedis.close();
+			return ret;
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return null;
 	}
 
 	@Override
-	public Object hgetAsBean(String key, String field) throws RedisException {
+	public Object hgetAsObject(String key, String field) throws RedisException {
 		String str = hget(key, field);
 		try {
 			Object ret = JsonUtils.toBean(str);
 			return ret;
 		} catch (Exception e) {
-			throw new RedisException("无法将字串【" + str + "】转换为bean对象", e);
+			logger.error("无法将字串【" + str + "】转换为bean对象", e);
 		}
+		return null;
 	}
 
 	@Override
@@ -168,15 +198,20 @@ public class RedisClientImpl implements RedisClient {
 	}
 
 	@Override
-	public boolean hdel(String key, String field) {
-		Jedis jedis = jedisPool.getResource();
-		long ret = jedis.hdel(key, field);
-		jedis.close();
-		return 0 < ret;
+	public boolean hdel(String key, String field) throws RedisException {
+		try {
+			Jedis jedis = jedisPool.getResource();
+			long ret = jedis.hdel(key, field);
+			jedis.close();
+			return 0 < ret;
+		} catch (Exception e) {
+			throw new RedisException("删除redis值异常", e);
+		}
+		
 	}
 
 	@Override
-	public boolean hdel(String key) {
+	public boolean hdel(String key) throws RedisException {
 		return del(key);
 	}
 
@@ -194,6 +229,32 @@ public class RedisClientImpl implements RedisClient {
 		if (StringUtils.isEmpty(val)) {
 			throw new IllegalArgumentException("key不能为空");
 		}
+	}
+
+	@Override
+	public long incr(String key) {
+		Jedis jedis = jedisPool.getResource();
+		long ttl = jedis.incr(key);
+		jedis.close();
+		return ttl;
+	}
+
+	@Override
+	public long decr(String key) {
+		Jedis jedis = jedisPool.getResource();
+		long ttl = jedis.decr(key);
+		jedis.close();
+		return ttl;
+	}
+
+	public Jedis getResource() {
+		try {
+			Jedis jedis = jedisPool.getResource();
+			return jedis;
+		} catch (Exception e) {
+			logger.error("无法打开redis客户端", e);
+		}
+		return null;
 	}
 
 }

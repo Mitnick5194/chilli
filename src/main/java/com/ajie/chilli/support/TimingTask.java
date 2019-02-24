@@ -22,6 +22,9 @@ public class TimingTask implements Runnable {
 	/** 定时执行的任务 */
 	private Worker worker;
 
+	/** 定时器名字 */
+	private String name;
+
 	/**
 	 * 创建一个定时并周期性执行的定时器
 	 * 
@@ -33,11 +36,17 @@ public class TimingTask implements Runnable {
 		this.worker = worker;
 		this.firstExecute = firstExecuteDate;
 		this.interval = interVal;
+		final String name;
+		if (null == this.name) {
+			name = "timing-thread";
+		} else {
+			name = this.name;
+		}
 		service = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {
 				Thread t = new Thread(r);
-				t.setName("redid-timing-thread");
+				t.setName(name);
 				return t;
 			}
 		});
@@ -57,7 +66,17 @@ public class TimingTask implements Runnable {
 				// 计算过去了的时间是多少个周期，如3点运行，周期是4小时，现在是9点，则超过了一个周期，下次运行是第二个周期的时间：3+4+4
 				int time = (int) (delay / interval);
 				long next = ((time + 1) * interval) - delay;
+				if (0 == next) {
+					next = interval;
+				}
 				service.scheduleAtFixedRate(this, next, interval, TimeUnit.MILLISECONDS);
+				/*	service.scheduleAtFixedRate(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println("=========================");
+
+				}
+				}, next, interval, TimeUnit.MILLISECONDS);*/
 			}
 		}
 	}
@@ -70,6 +89,21 @@ public class TimingTask implements Runnable {
 	 */
 	public TimingTask(Worker worker, Date firstExecute) {
 		this(worker, firstExecute, 0);
+	}
+
+	public static TimingTask createTimingTask(Worker worker, Date firstExecute) {
+		return createTimingTask(worker, firstExecute, 0);
+	}
+
+	public static TimingTask createTimingTask(Worker worker, Date firstExecuteDate, long interVal) {
+		return new TimingTask(worker, firstExecuteDate, interVal);
+	}
+
+	public static TimingTask createTimingTask(String name, Worker worker, Date firstExecuteDate,
+			long interVal) {
+		TimingTask timingTask = new TimingTask(worker, firstExecuteDate, interVal);
+		timingTask.name = name;
+		return timingTask;
 	}
 
 	@Override

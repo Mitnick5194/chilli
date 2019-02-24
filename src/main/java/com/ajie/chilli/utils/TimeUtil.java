@@ -216,6 +216,17 @@ public final class TimeUtil {
 	}
 
 	/**
+	 * 对比两个时间是否为同一天
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static boolean isSameDay(Date date1, Date date2) {
+		return 0 == inteval(date1, date2);
+	}
+
+	/**
 	 * 字符串转换成日期格式，支持格式: yyyy-MM-dd HH:mm:ss、yyyy-MM-dd HH:mm、yyyy-MM-dd、yyyyMMdd
 	 * yyyyMMddHHmm、yyyyMMddHHmmss
 	 * 

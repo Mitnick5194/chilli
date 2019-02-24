@@ -263,6 +263,21 @@ final public class Toolkits {
 		return hex2deci(String.valueOf(hex));
 	}
 
+	/***
+	 * 字节数组转16进制字符串
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	public static String byte2Hex(byte[] bytes) {
+		StringBuilder buf = new StringBuilder(bytes.length * 2);
+		for (byte b : bytes) { // 使用String的format方法进行转换
+			buf.append(String.format("%02x", new Integer(b & 0xff)));
+		}
+		return buf.toString();
+
+	}
+
 	/**
 	 * 生成32位md5码
 	 * 
@@ -290,7 +305,7 @@ final public class Toolkits {
 			// 标准的md5加密后的结果
 			return buffer.toString();
 		} catch (NoSuchAlgorithmException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			return "";
 		}
 

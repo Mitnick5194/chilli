@@ -1,8 +1,5 @@
 package com.ajie.chilli.remote;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * 远程登录服务器所需的基本配置信息

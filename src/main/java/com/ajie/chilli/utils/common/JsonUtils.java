@@ -54,6 +54,7 @@ public class JsonUtils {
 		return JSON.parse(text);
 	}
 
+	/** 将字串转换成bean，也可以转换成JsonObject */
 	public static <T> T toBean(String text, Class<T> clazz) {
 		return JSON.parseObject(text, clazz);
 	}
