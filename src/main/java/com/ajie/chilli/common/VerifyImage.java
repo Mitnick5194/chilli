@@ -19,7 +19,9 @@ import com.ajie.chilli.utils.Toolkits;
  * @author niezhenjie
  *
  */
-public class VeriryImage {
+public class VerifyImage {
+	/** 验证码缓存前缀 */
+	public final static String CACHE_PREFIX = "VERIFY-CODE-";
 
 	/**
 	 * 获取一张验证码图片
@@ -66,8 +68,8 @@ public class VeriryImage {
 		graphics.setFont(new Font("Times New Roman", Font.ITALIC, fontsize));
 
 		// 画150条干扰线，防止被嗅探
-		graphics.setColor(getColor(160, 200));
 		for (int i = 0; i < 150; i++) {
+			graphics.setColor(getColor(160, 210));
 			int x1 = Toolkits.getRandomRange(0, width);
 			int x2 = Toolkits.getRandomRange(0, width);
 			int y1 = Toolkits.getRandomRange(0, height);
@@ -78,7 +80,7 @@ public class VeriryImage {
 		char[] chars = key.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
 			graphics.setColor(getColor(10, 140));
-			graphics.drawChars(chars, i, 1, i * 13, 16);
+			graphics.drawChars(chars, i, 1, i * 13+7, 16);
 		}
 		// 输出一下
 		graphics.dispose();

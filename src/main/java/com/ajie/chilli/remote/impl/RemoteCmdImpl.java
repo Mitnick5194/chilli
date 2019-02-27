@@ -152,7 +152,9 @@ public class RemoteCmdImpl implements RemoteCmd {
 		config.setCore(2);
 		SshSessionMgr ssh = new BlockSshSessionMgr(config);
 		RemoteCmdImpl rci = new RemoteCmdImpl(ssh);
-		String ret = rci.cmd("echo " + passwd + " | sudo -S netstat -anpt | grep :22");
+		// String ret = rci.cmd("echo " + passwd +
+		// " | sudo -S netstat -anpt | grep :22");
+		String ret = rci.cmd("curl http://ip.taobao.com/service/getIpInfo.php?ip=47.106.211.15");
 		System.out.println(ret);
 
 		/*Properties prop = new Properties();

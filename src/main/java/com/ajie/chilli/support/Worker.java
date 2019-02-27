@@ -8,5 +8,5 @@ package com.ajie.chilli.support;
  */
 public interface Worker {
 	/** 执行任务 */
-	void work();
+	void work() throws Exception;
 }

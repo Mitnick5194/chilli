@@ -39,7 +39,52 @@ final public class Toolkits {
 	}
 
 	/**
-	 * 生成由0-9a-zA-z组成的唯一名字，经测试，此方法的唯一性最高，生成16位数，在5000个并发下测试10次没有出现过冲突
+	 * 生成长度为len的随机数，返回的是字符串，前面为0也显示
+	 * 
+	 * @param len
+	 * @return
+	 */
+	static public String randomNum(int len) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			int idx = getRandomRange(0, 9);
+			sb.append(digits[idx]);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * 生成由0-9a-z组成的唯一名字，经测试，此方法的唯一性最高，生成16位数，在5000个并发下测试10次没有出现过冲突
+	 * 但是这个在性能上消耗大于genRandomStr，在并发很大时，优先选择此方法
+	 * 
+	 * @param len
+	 * @return
+	 */
+	static public String uniqueKeyLowerCase(int len) {
+		if (0 == len)
+			return "";
+		int timestamptlen = 13;// 时间戳长度
+		StringBuilder sb = new StringBuilder();
+		if (len < timestamptlen) { // 长度少于13，直接使用13个随机数做对照
+			for (int i = 0; i < len; i++) {
+				int idx = getRandomRange(0, 36);
+				sb.append(digits[idx]);
+			}
+			return sb.toString();
+		}
+		len -= timestamptlen;
+		for (int i = 0; i < len; i++) {
+			int idx = getRandomRange(0, 36);
+			sb.append(digits[idx]);
+		}
+		Date now = new Date();
+		sb.append(now.getTime());
+		return sb.toString();
+
+	}
+
+	/**
+	 * 生成由0-9a-zA-Z组成的唯一名字，经测试，此方法的唯一性最高，生成16位数，在5000个并发下测试10次没有出现过冲突
 	 * 但是这个在性能上消耗大于genRandomStr，在并发很大时，优先选择此方法
 	 * 
 	 * @param len
@@ -179,6 +224,34 @@ final public class Toolkits {
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * 十进制转十六进制,不显示前缀
+	 * 
+	 * @param deci
+	 * @return
+	 * @throws NumberFormatException
+	 */
+	public static String deci0x2Hex(int deci) throws NumberFormatException {
+		return deci2Hex(deci, null);
+	}
+
+	/**
+	 * 十进制转十六进制
+	 * 
+	 * @param deci
+	 * @param prefix指定结果前缀
+	 *            ，结果包括：0x、x、null,不区分大小写，null表示不显示前缀
+	 * @return
+	 * @throws NumberFormatException
+	 */
+	public static String deci2Hex(int deci, String prefix) throws NumberFormatException {
+		if ("x".equalsIgnoreCase(prefix) && "0x".equalsIgnoreCase(prefix) && null != prefix)
+			throw new NumberFormatException("格式错误，结果前缀需是0x或x或空,当前前缀：" + prefix);
+		String ret = Integer.toHexString(deci);
+		return prefix + ret;
+
 	}
 
 	/**

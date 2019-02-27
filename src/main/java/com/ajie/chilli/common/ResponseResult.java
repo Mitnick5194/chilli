@@ -1,5 +1,8 @@
 package com.ajie.chilli.common;
 
+import com.ajie.chilli.utils.common.JsonUtils;
+import com.alibaba.fastjson.JSONObject;
+
 /**
  * 请求响应信息封装
  * 
@@ -58,6 +61,30 @@ public class ResponseResult {
 		this.data = data;
 	}
 
+	/**
+	 * 将data转换成T类型，data只能是简单的对象类型，不能是复合的
+	 * 
+	 * @param clazz
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getData(Class<T> clazz) {
+		if (null == data)
+			return null;
+		if (data instanceof String == false && data instanceof JSONObject == false)
+			return (T) data;
+		if (data instanceof String) {
+			String str = (String) data;
+			// json串
+			if (str.startsWith("{") && str.endsWith("}")) {
+				return JsonUtils.toBean((String) data, clazz);
+			}
+		}
+
+		if (data instanceof JSONObject)
+			return JsonUtils.toBean((JSONObject) data, clazz);
+		return (T) data;
+	}
+
 	public static ResponseResult newResult(int code, String msg, Object data) {
 		ResponseResult ret = new ResponseResult();
 		ret.setCode(code);
@@ -99,5 +126,4 @@ public class ResponseResult {
 		ret.setCode(CODE_NORET);
 		return ret;
 	}
-
 }

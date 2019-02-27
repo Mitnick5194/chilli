@@ -6,6 +6,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 定时器
  *
@@ -13,6 +16,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class TimingTask implements Runnable {
+	protected static final Logger logger = LoggerFactory.getLogger(TimingTask.class);
 	/** 首次执行的时间 */
 	private Date firstExecute;
 	/** 周期执行的间隔 单位值毫秒 0表示只执行一次 */
@@ -33,20 +37,32 @@ public class TimingTask implements Runnable {
 	 * @param interval
 	 */
 	public TimingTask(Worker worker, Date firstExecuteDate, long interVal) {
+		this(null, worker, firstExecuteDate, interVal);
+	}
+
+	/**
+	 * 创建一个指定名字的定器时并周期性执
+	 * 
+	 * @param worker
+	 * @param firstExecute
+	 * @param interval
+	 */
+	public TimingTask(String name, Worker worker, Date firstExecuteDate, long interVal) {
 		this.worker = worker;
 		this.firstExecute = firstExecuteDate;
 		this.interval = interVal;
-		final String name;
+		this.name = name;
+		final String threadName;
 		if (null == this.name) {
-			name = "timing-thread";
+			threadName = "timing-thread";
 		} else {
-			name = this.name;
+			threadName = this.name;
 		}
 		service = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {
 				Thread t = new Thread(r);
-				t.setName(name);
+				t.setName(threadName);
 				return t;
 			}
 		});
@@ -70,13 +86,6 @@ public class TimingTask implements Runnable {
 					next = interval;
 				}
 				service.scheduleAtFixedRate(this, next, interval, TimeUnit.MILLISECONDS);
-				/*	service.scheduleAtFixedRate(new Runnable() {
-				@Override
-				public void run() {
-					System.out.println("=========================");
-
-				}
-				}, next, interval, TimeUnit.MILLISECONDS);*/
 			}
 		}
 	}
@@ -101,13 +110,16 @@ public class TimingTask implements Runnable {
 
 	public static TimingTask createTimingTask(String name, Worker worker, Date firstExecuteDate,
 			long interVal) {
-		TimingTask timingTask = new TimingTask(worker, firstExecuteDate, interVal);
-		timingTask.name = name;
+		TimingTask timingTask = new TimingTask(name, worker, firstExecuteDate, interVal);
 		return timingTask;
 	}
 
 	@Override
 	public void run() {
-		worker.work();
+		try {
+			worker.work();
+		} catch (Exception e) {
+			logger.error("定时任务执行失败", Thread.currentThread().getName(), e);
+		}
 	}
 }
