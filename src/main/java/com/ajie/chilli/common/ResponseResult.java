@@ -126,4 +126,51 @@ public class ResponseResult {
 		ret.setCode(CODE_NORET);
 		return ret;
 	}
+
+	/**
+	 * 将相应对象转换成jsonp所需的格式
+	 * 
+	 * @param res
+	 * @param callback
+	 * @return
+	 */
+	public static <T> String toJsonp(ResponseResult res, String callback) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(callback);
+		sb.append("(");
+		if (null == res) {
+			sb.append(")");
+			return sb.toString();
+		}
+		sb.append("{");
+		sb.append("\"");
+		sb.append("code");
+		sb.append("\"");
+		sb.append(":");
+		sb.append("\"");
+		sb.append(res.getCode());
+		sb.append("\"");
+		if (null != res.getMsg()) {
+			sb.append(",");
+			sb.append("\"");
+			sb.append("msg");
+			sb.append("\"");
+			sb.append(":");
+			sb.append("\"");
+			sb.append(res.getMsg());
+			sb.append("\"");
+		}
+		if (null != res.getData()) {
+			sb.append(",");
+			sb.append("\"");
+			sb.append("data");
+			sb.append("\"");
+			sb.append(":");
+			sb.append(JsonUtils.toJSONString(res.getData()));
+		}
+
+		sb.append("}");
+		sb.append(")");
+		return sb.toString();
+	}
 }
