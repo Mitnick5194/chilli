@@ -1,6 +1,11 @@
 package com.ajie.chilli.utils.common;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class StringUtils {
+	/** 特殊字符 */
+	public static final String SPECIAL_CHARS = "[ _`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]|\n|\r|\t";
 
 	private StringUtils() {
 	}
@@ -78,5 +83,17 @@ public class StringUtils {
 			datas[i] = null;
 		}
 		datas = null;
+	}
+
+	/**
+	 * 判断是否含有特殊字符
+	 *
+	 * @param str
+	 * @return true为包含，false为不包含
+	 */
+	public static boolean isSpecialChar(String str) {
+		Pattern p = Pattern.compile(SPECIAL_CHARS);
+		Matcher m = p.matcher(str);
+		return m.find();
 	}
 }
