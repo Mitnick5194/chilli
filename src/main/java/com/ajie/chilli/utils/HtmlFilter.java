@@ -19,7 +19,7 @@ final public class HtmlFilter {
 	/**
 	 * 过滤html标签，如 <div>abc</div>过滤后的结果：abc<br>
 	 * 注意，如果只有一个标签，照样会被过滤 如只出现<div>没有</div>一样会被过滤<br>
-	 * 对<img />类型的标签也起作用
+	 * 对<img />类型的标签也起作用，但是如果是<div class='dv' ,没有结束符> ，这种是不会被过滤的
 	 * 
 	 * @param content
 	 * @return
@@ -55,9 +55,12 @@ final public class HtmlFilter {
 						break;
 					}
 				}
-				if (!find)
-					continue;
-				if (j - i < 3) {
+				if (!find) {
+					// 遍历整个都没有右标签，只有左标签可以退出了
+					break;
+				}
+
+				if (j - i < 2) {
 					// 可能是<>这不是标签，不需过滤
 					sb.append(content.substring(preIdx, j + 1));
 				} else {
@@ -68,7 +71,7 @@ final public class HtmlFilter {
 				preIdx = j;
 			}
 		}
-		// 如果不是以</xxx>结尾，那么最后还会有一组数据没有被加进来，需要添加一下
+		// 如果content不是以</xxx>结尾，那么最后还会有一组数据没有被加进来，需要添加一下
 		sb.append(content.substring(preIdx, content.length()));
 		return sb.toString();
 	}
@@ -100,11 +103,11 @@ final public class HtmlFilter {
 	}
 
 	public static void main(String[] args) {
-		String html = "123<div>abc</div>a<img class='img'/>vd<>";
+		String html = "<p>123<div>abc</div>a<img class='img'/>vd<></p><code class='haha' ";
 		String ret = filterHtml(html, null);
-		String escape = escape(html);
+		// String escape = escape(html);
 		System.out.println(ret);
-		System.out.println(escape);
+		// System.out.println(escape);
 	}
 
 }

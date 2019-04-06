@@ -171,14 +171,14 @@ public class UploadServiceImpl implements UploadService {
 		// final AsynSshSessionMgr mgr = new AsynSshSessionMgr(config);
 		final SshSessionMgr mgr = new AsynSshSessionMgr(config);
 		final UploadService upload = new UploadServiceImpl(mgr);
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1; i++) {
 			final int j = i;
 			Thread t = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						InputStream stream = new FileInputStream(new File(
-								"C:/Users/ajie/Desktop/103264437383964562.jpg"));
+								"C:/Users/ajie/Desktop/day3.gif"));
 						upload.upload(stream, "/var/www/image", "bigimg" + j + ".png");
 					} catch (RemoteException e) {
 
