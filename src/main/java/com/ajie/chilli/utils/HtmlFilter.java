@@ -33,7 +33,7 @@ final public class HtmlFilter {
 		if (content.length() < 3)
 			return content;
 		int preIdx = 0;// 上一个标签的结束位置
-		for (int i = 0; i < content.length(); i++) {
+		outer: for (int i = 0; i < content.length(); i++) {
 			char c = content.charAt(i);
 			if (c == MARK_LEFT) { // 发现左标签<
 				if (i == content.length() - 1) {
@@ -47,7 +47,7 @@ final public class HtmlFilter {
 					char right = content.charAt(j);
 					if (right == MARK_LEFT) {// 又一个<那么上一个肯定不是标签的开始了
 						i = --j;
-						break;
+						continue outer;
 					}
 					if (right == MARK_RIGHT) {
 						// 找到有标签>的位置了
@@ -103,7 +103,7 @@ final public class HtmlFilter {
 	}
 
 	public static void main(String[] args) {
-		String html = "<p>123<div>abc</div>a<img class='img'/>vd<></p><code class='haha' ";
+		String html = "<p>1<23<div>abc</div>a<img class='img'/>vd<></p><code class='haha' ";
 		String ret = filterHtml(html, null);
 		// String escape = escape(html);
 		System.out.println(ret);

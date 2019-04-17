@@ -36,6 +36,16 @@ public enum SexEnum {
 		}
 	}
 
+	public static SexEnum find(String name) {
+		if (male.getName().equals(name)) {
+			return male;
+		} else if (female.getName().equals(name)) {
+			return female;
+		} else {
+			return unknown;
+		}
+	}
+
 	public static SexEnum findByIdCart(String idcard) {
 		if (null == idcard) {
 			return unknown;
