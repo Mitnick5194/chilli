@@ -107,16 +107,58 @@ public class ResponseResult {
 		return ret;
 	}
 
+	/**
+	 * 成功
+	 * 
+	 * @param msg
+	 *            如果是String类型，则设置msg，否则设置data
+	 * @return
+	 */
 	public static ResponseResult success(Object data) {
 		ResponseResult ret = new ResponseResult();
 		ret.setCode(CODE_SUC);
+		String msg = null;
+		if (data instanceof String) {
+			msg = (String) data;
+			ret.setMsg(msg);
+		} else {
+			ret.setData(data);
+		}
+		return ret;
+	}
+
+	public static ResponseResult success(String msg, Object data) {
+		ResponseResult ret = new ResponseResult();
+		ret.setCode(CODE_SUC);
+		ret.setMsg(msg);
 		ret.setData(data);
 		return ret;
 	}
 
-	public static ResponseResult error(Object data) {
+	/**
+	 * 失败返回
+	 * 
+	 * @param data
+	 *            如果是String类型，则setMsg否则setData
+	 * @return
+	 */
+	public static ResponseResult fail(Object data) {
 		ResponseResult ret = new ResponseResult();
 		ret.setCode(CODE_ERR);
+		String msg = null;
+		if (data instanceof String) {
+			msg = (String) data;
+			ret.setMsg(msg);
+		} else {
+			ret.setData(data);
+		}
+		return ret;
+	}
+
+	public static ResponseResult fail(String msg, Object data) {
+		ResponseResult ret = new ResponseResult();
+		ret.setCode(CODE_ERR);
+		ret.setMsg(msg);
 		ret.setData(data);
 		return ret;
 	}

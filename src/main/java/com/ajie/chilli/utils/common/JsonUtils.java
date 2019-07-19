@@ -37,7 +37,6 @@ public class JsonUtils {
 	};
 
 	/**
-	 * 转换后的String，可以直接被前端js识别为json，并且object可以是有普通类型和集合类型和对象类型组成
 	 * 
 	 * @param object
 	 * @return

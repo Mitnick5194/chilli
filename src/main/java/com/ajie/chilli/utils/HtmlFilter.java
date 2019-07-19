@@ -83,7 +83,7 @@ final public class HtmlFilter {
 	 * @return
 	 */
 	public static String escape(String content) {
-		StringBuilder sb = new StringBuilder();
+		/*StringBuilder sb = new StringBuilder();
 		if (null == content)
 			return sb.toString();
 		if (content.length() < 3) {
@@ -99,7 +99,12 @@ final public class HtmlFilter {
 				sb.append(c);
 			}
 		}
-		return sb.toString();
+		return sb.toString();*/
+		if (null == content)
+			return null;
+		content = content.replaceAll("<", "&lt;");
+		content = content.replaceAll(">", "&gt;");
+		return content;
 	}
 
 	public static void main(String[] args) {

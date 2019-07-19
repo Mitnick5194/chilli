@@ -1,7 +1,10 @@
-package com.ajie.chilli.collection.simple;
+package com.ajie.chilli.collection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 简单的只读list封装 基与ArrayList
@@ -12,18 +15,23 @@ public class SwitchUnmodifiableList<E> extends ArrayList<E> {
 
 	private static final long serialVersionUID = 1L;
 
-	/** 不可修改标识 , 默认为false，为true时标识列表只读 */
-	protected boolean unmodifiable;
+	/** 不可修改标识 */
+	public static final int MARK_UN_MODIFY = 0x10000000;
+
+	/** 标识 */
+	int mark;
 
 	/**
 	 * 无参构造
 	 */
 	public SwitchUnmodifiableList() {
 		super();
+		mark = 0;
 	}
 
 	public SwitchUnmodifiableList(int initialCapacity) {
 		super(initialCapacity);
+		mark = 0;
 	}
 
 	/**
@@ -43,6 +51,45 @@ public class SwitchUnmodifiableList<E> extends ArrayList<E> {
 	}
 
 	/**
+	 * 根据传入的元素构造可读列表
+	 * 
+	 * @param e
+	 * @return
+	 */
+	@SafeVarargs
+	public static <E> List<E> valueOf(E... items) {
+		if (null == items || items.length == 0) {
+			return Collections.emptyList();
+		}
+		SwitchUnmodifiableList<E> list = new SwitchUnmodifiableList<E>(Arrays.asList(items), true);
+		return list;
+	}
+
+	/**
+	 * 添加一个元素后将列表转换成只读
+	 * 
+	 * @param e
+	 * @return
+	 */
+	public List<E> addAndSwitch(E e) {
+		this.add(e);
+		swithUnmodifiable();
+		return this;
+	}
+
+	/**
+	 * 添加后转换成只读
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public List<E> addAllAndSwitch(Collection<? extends E> c) {
+		this.addAll(c);
+		swithUnmodifiable();
+		return this;
+	}
+
+	/**
 	 * 只读转换
 	 * 
 	 * <p>
@@ -59,13 +106,22 @@ public class SwitchUnmodifiableList<E> extends ArrayList<E> {
 	 * 
 	 */
 	public void swithUnmodifiable() {
-		unmodifiable = true;
+		mark = MARK_UN_MODIFY;
+	}
+
+	/**
+	 * 是否为可读列表
+	 * 
+	 * @return
+	 */
+	protected boolean isUnModifiable() {
+		return MARK_UN_MODIFY == (MARK_UN_MODIFY & mark);
 	}
 
 	public void assertModifiable() {
-		if (unmodifiable)
+		if (isUnModifiable())
 			throw new UnsupportedOperationException(
-					"hei man , what are you fucking doing , i am readonly you know");
+					"hei man , what are you doing , i am readonly you know");
 	}
 
 	@Override

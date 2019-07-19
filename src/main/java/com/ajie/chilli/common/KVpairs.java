@@ -111,6 +111,21 @@ public class KVpairs {
 	}
 
 	/**
+	 * 根据id查找KVpair，如果有id冲突，则，只会返回第一项
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public KVpair getItemById(int id) {
+		for (KVpair p : datas) {
+			if (p.getId() == id) {
+				return p;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * 删除重复id项，注，如果KVpair只有name和value会全部删除只留一项
 	 */
 	public void deleteRepeatId() {
