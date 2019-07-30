@@ -15,14 +15,16 @@ import java.util.Random;
 final public class Toolkits {
 
 	/** 数字字母表 */
-	public final static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-			'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-			's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-			'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+	public final static char[] digits = { '0', '1', '2', '3', '4', '5', '6',
+			'7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+			'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+			'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+			'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+			'X', 'Y', 'Z' };
 
 	/** 十六进制对照表 */
-	public final static char[] hexTable = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-			'b', 'c', 'd', 'e', 'f' };
+	public final static char[] hexTable = { '0', '1', '2', '3', '4', '5', '6',
+			'7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 	public static final Random _Random = new Random();
 
@@ -246,8 +248,10 @@ final public class Toolkits {
 	 * @return
 	 * @throws NumberFormatException
 	 */
-	public static String deci2Hex(int deci, String prefix) throws NumberFormatException {
-		if ("x".equalsIgnoreCase(prefix) && "0x".equalsIgnoreCase(prefix) && null != prefix)
+	public static String deci2Hex(int deci, String prefix)
+			throws NumberFormatException {
+		if ("x".equalsIgnoreCase(prefix) && "0x".equalsIgnoreCase(prefix)
+				&& null != prefix)
 			throw new NumberFormatException("格式错误，结果前缀需是0x或x或空,当前前缀：" + prefix);
 		String ret = Integer.toHexString(deci);
 		return prefix + ret;
@@ -445,46 +449,41 @@ final public class Toolkits {
 
 		System.out.println("==========");
 
-		/*final HashSet<String> set = new HashSet<String>();
-		final ArrayList<String> list = new ArrayList<String>();
-		for (int i = 0; i < 5000; i++) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					synchronized (set) {
-						String id = Toolkits.uniqueKey(16);
-						// String id = gen16UniqueId();
-						// System.out.println(id);
-						set.add(id);
-						list.add(id);
-					}
-				}
-			}).start();
-		}
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		System.out.println(set.size());
-		System.out.println(list.size());*/
-		/*
-		System.out.println("================================");
-		for (int i = 0; i < list.size(); i++) {
-			String str1 = list.get(i);
-			for (int j = i + 1; j < list.size() - i - 1; j++) {
-				if (str1.equals(list.get(j))) {
-					System.out.println("i=" + i + ", j=" + j);
-					System.out.println(str1);
-				}
-			}
-		}
-		System.out.println("================================");*/
-		/*	for (int i = 0; i < list.size(); i++) {
-				System.out.println(i + "： " + list.get(i));
-			}*/
+		String s = byte2Hex("我们".getBytes());
+		System.out.println(s);
 
-		/*int i = Toolkits.Hex2Deci("0x100");
-		System.out.println(i);*/
+		long l = System.currentTimeMillis();
+		StringBuffer sb = new StringBuffer();
+		while (l >> 4 > 0) {
+			sb.append(String.format("%02x", new Integer((int)(l & 0xff))));
+		}
+
+		/*
+		 * final HashSet<String> set = new HashSet<String>(); final
+		 * ArrayList<String> list = new ArrayList<String>(); for (int i = 0; i <
+		 * 5000; i++) { new Thread(new Runnable() {
+		 * 
+		 * @Override public void run() { synchronized (set) { String id =
+		 * Toolkits.uniqueKey(16); // String id = gen16UniqueId(); //
+		 * System.out.println(id); set.add(id); list.add(id); } } }).start(); }
+		 * try { Thread.sleep(3000); } catch (InterruptedException e) {
+		 * e.printStackTrace(); } System.out.println(set.size());
+		 * System.out.println(list.size());
+		 */
+		/*
+		 * System.out.println("================================"); for (int i =
+		 * 0; i < list.size(); i++) { String str1 = list.get(i); for (int j = i
+		 * + 1; j < list.size() - i - 1; j++) { if (str1.equals(list.get(j))) {
+		 * System.out.println("i=" + i + ", j=" + j); System.out.println(str1);
+		 * } } } System.out.println("================================");
+		 */
+		/*
+		 * for (int i = 0; i < list.size(); i++) { System.out.println(i + "： " +
+		 * list.get(i)); }
+		 */
+
+		/*
+		 * int i = Toolkits.Hex2Deci("0x100"); System.out.println(i);
+		 */
 	}
 }

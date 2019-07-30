@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -31,7 +32,8 @@ import org.slf4j.LoggerFactory;
  * @author niezhenjie
  */
 public class HttpClientUtil {
-	private static final Logger logger = LoggerFactory.getLogger(HttpClientUtil.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(HttpClientUtil.class);
 
 	public static final int SUC_CODE = 200;
 
@@ -48,7 +50,8 @@ public class HttpClientUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String doGet(String url, Map<String, String> params) throws IOException {
+	public static String doGet(String url, Map<String, String> params)
+			throws IOException {
 		return doGet(url, params, null);
 	}
 
@@ -64,8 +67,8 @@ public class HttpClientUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String doGet(String url, Map<String, String> params, Map<String, String> headers)
-			throws IOException {
+	public static String doGet(String url, Map<String, String> params,
+			Map<String, String> headers) throws IOException {
 		// 创建httpclient对象
 		CloseableHttpClient client = HttpClients.createDefault();
 		String result = "";
@@ -112,7 +115,8 @@ public class HttpClientUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String doPost(String url, Map<String, String> params) throws IOException {
+	public static String doPost(String url, Map<String, String> params)
+			throws IOException {
 		return doPost(url, params, null);
 	}
 
@@ -125,19 +129,24 @@ public class HttpClientUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String doPost(String url, Map<String, String> params, Map<String, String> headers)
-			throws IOException {
+	public static String doPost(String url, Map<String, String> params,
+			Map<String, String> headers) throws IOException {
 		CloseableHttpClient client = HttpClients.createDefault();
+		RequestConfig config = RequestConfig.custom().setConnectTimeout(30000)
+				.setConnectionRequestTimeout(2000).setSocketTimeout(10000)
+				.build();
 		String result = "";
 		CloseableHttpResponse response = null;
 		HttpPost post = new HttpPost(url);
+		post.setConfig(config);
 		try {
 			if (null != params) {
 				List<NameValuePair> paramList = new ArrayList<NameValuePair>();
 				for (String key : params.keySet()) {
 					paramList.add(new BasicNameValuePair(key, params.get(key)));
 				}
-				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList);
+				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(
+						paramList);
 				post.setEntity(entity);
 			}
 			if (null != headers) {
@@ -166,11 +175,11 @@ public class HttpClientUtil {
 	}
 
 	public static void main(String[] args) {
-		String url = "http://www.baidu.com/s";
+		String url = "http://www.ajie18.top/s";
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("wd", "新浪");
 		try {
-			String ret = HttpClientUtil.doGet(url, params);
+			String ret = HttpClientUtil.doPost(url, params);
 			System.out.println(ret);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
