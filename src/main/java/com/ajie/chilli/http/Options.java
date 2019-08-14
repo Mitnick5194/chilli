@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ajie
  *
  */
-public class UrlWrap {
+public class Options {
 
 	/** 链接 */
 	private String url;
@@ -20,7 +20,7 @@ public class UrlWrap {
 	 * 请求获取数据的超时时间(即响应时间)，单位毫秒。 如果访问一个接口，<br>
 	 * 多少时间内无法返回数据，就直接放弃此次调用。 -1表示不设置
 	 * */
-	private int socketTimeout;
+	private int readTimeout;
 
 	/** 设置连接超时时间，单位毫秒 -1表示不设置 */
 	private int connectTimeout;
@@ -32,22 +32,24 @@ public class UrlWrap {
 	private boolean isActive;
 
 	/** 调用次数 */
-	private AtomicInteger couter = new AtomicInteger();
+	volatile private AtomicInteger couter = new AtomicInteger();
 
+	/** 权重范围 */
 	private WeightRang weightRang;
 
-	public UrlWrap(String url) {
-		this(url, -1, -1);
+	public Options(String url) {
+		this(url, HttpInvoke.DEFALUT_READ_TIMEOUT,
+				HttpInvoke.DEFALUT_CONNECT_TIMEOUT);
 	}
 
-	public UrlWrap(String url, int socketTimeout, int connectTimeout) {
+	public Options(String url, int socketTimeout, int connectTimeout) {
 		this(url, socketTimeout, connectTimeout, 1, true);
 	}
 
-	public UrlWrap(String url, int socketTimeout, int connectTimeout,
+	public Options(String url, int readTimeout, int connectTimeout,
 			int weight, boolean isActive) {
 		this.url = url;
-		this.socketTimeout = socketTimeout;
+		this.readTimeout = readTimeout;
 		this.connectTimeout = connectTimeout;
 		this.weight = weight;
 		this.isActive = isActive;
@@ -65,8 +67,8 @@ public class UrlWrap {
 		return connectTimeout;
 	}
 
-	public int getSocketTimeout() {
-		return socketTimeout;
+	public int getReadTimeout() {
+		return readTimeout;
 	}
 
 	/**
@@ -153,16 +155,16 @@ public class UrlWrap {
 	}
 
 	/**
-	 * UrlWrap构建者
+	 * Options构建者
 	 * 
 	 * @author niezhenjie
 	 *
 	 */
 	public static class Builder {
-		private UrlWrap wrap;
+		private Options wrap;
 
 		private Builder(String url) {
-			wrap = new UrlWrap(url);
+			wrap = new Options(url);
 		}
 
 		public static Builder getBuilder(String url) {
@@ -171,7 +173,7 @@ public class UrlWrap {
 		}
 
 		public Builder setSocketTimeout(int timeout) {
-			wrap.socketTimeout = timeout;
+			wrap.readTimeout = timeout;
 			return this;
 		}
 
@@ -200,7 +202,7 @@ public class UrlWrap {
 			return this;
 		}
 
-		public UrlWrap build() {
+		public Options build() {
 			return wrap;
 		}
 	}

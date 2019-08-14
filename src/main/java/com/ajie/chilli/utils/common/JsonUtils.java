@@ -132,15 +132,14 @@ public class JsonUtils {
 		System.out.println(ret);
 		List<User> list2 = JsonUtils.toList(ret, User.class);
 		System.out.println(list2.size());
-
 		System.out.println("==========复合对象============");
-		Blog blog = new Blog("博客1", new User(1, "ajie"));
+		/*Blog blog = new Blog("博客1", new User(1, "ajie"));
 		String str = JsonUtils.toJSONString(blog);
 		System.out.println(str);
 		Blog blo = JsonUtils.toBean(str, Blog.class);
 		Object obj = blo.getUser();
 		User bean = JsonUtils.toBean(obj.toString(), User.class);
-		System.out.println(bean.getId());
+		System.out.println(bean.getId());*/
 	}
 
 }

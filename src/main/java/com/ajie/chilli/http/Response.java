@@ -15,6 +15,6 @@ public interface Response {
 	String getMsg();
 
 	/** 数据 */
-	<T> T getData();
+	<E> E getData(Class<E> clazz);
 
 }

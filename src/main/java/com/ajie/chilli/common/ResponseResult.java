@@ -1,6 +1,10 @@
 package com.ajie.chilli.common;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.ajie.chilli.utils.common.JsonUtils;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -70,7 +74,8 @@ public class ResponseResult {
 	public <T> T getData(Class<T> clazz) {
 		if (null == data)
 			return null;
-		if (data instanceof String == false && data instanceof JSONObject == false)
+		if (data instanceof String == false
+				&& data instanceof JSONObject == false)
 			return (T) data;
 		if (data instanceof String) {
 			String str = (String) data;
@@ -83,6 +88,28 @@ public class ResponseResult {
 		if (data instanceof JSONObject)
 			return JsonUtils.toBean((JSONObject) data, clazz);
 		return (T) data;
+	}
+
+	/**
+	 * 将data转换成T类型的集合
+	 * 
+	 * @param clazz
+	 * @return
+	 */
+	public <T> List<T> listData(Class<T> clazz) {
+		if (null == data)
+			return Collections.emptyList();
+		if (data instanceof String == false
+				&& data instanceof JSONArray == false)
+			return Collections.emptyList();
+		if (data instanceof String) {
+			String str = (String) data;
+			// json串
+			if (str.startsWith("{[") && str.endsWith("}]")) {
+				return JsonUtils.toList(str, clazz);
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	public static ResponseResult newResult(int code, String msg, Object data) {
