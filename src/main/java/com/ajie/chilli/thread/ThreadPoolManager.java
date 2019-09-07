@@ -10,8 +10,9 @@ import java.util.concurrent.TimeUnit;
  * 统一管理线程，不能执行定时任务
  *
  * @author niezhenjie
- *
+ * @Deprecated 请使用 ThreadPool
  */
+@Deprecated
 public class ThreadPoolManager {
 
 	/** 最小线程数/核心数 */
@@ -41,7 +42,8 @@ public class ThreadPoolManager {
 		this(minSize, maxSize, queueSize, DEFAULT_NAME);
 	}
 
-	public ThreadPoolManager(int minSize, int maxSize, int queueSize, String name) {
+	public ThreadPoolManager(int minSize, int maxSize, int queueSize,
+			String name) {
 		this.minSize = minSize;
 		this.maxSize = maxSize;
 		this.queueSize = queueSize;
@@ -50,8 +52,9 @@ public class ThreadPoolManager {
 	}
 
 	private void init() {
-		executor = new ThreadPoolExecutor(minSize, maxSize, 2, TimeUnit.MINUTES,
-				new ArrayBlockingQueue<Runnable>(queueSize), new ThreadFactory() {
+		executor = new ThreadPoolExecutor(minSize, maxSize, 2,
+				TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(queueSize),
+				new ThreadFactory() {
 
 					@Override
 					public Thread newThread(Runnable r) {
