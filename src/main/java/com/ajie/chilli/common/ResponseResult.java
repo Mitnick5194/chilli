@@ -81,12 +81,16 @@ public class ResponseResult {
 			String str = (String) data;
 			// json串
 			if (str.startsWith("{") && str.endsWith("}")) {
-				return JsonUtils.toBean((String) data, clazz);
+				return JsonUtils.toBean(str, clazz);
 			}
 		}
 
-		if (data instanceof JSONObject)
-			return JsonUtils.toBean((JSONObject) data, clazz);
+		if (data instanceof JSONObject) {
+			JSONObject json = (JSONObject) data;
+			T t = JsonUtils.toBean(json, clazz);
+			return t;
+		}
+
 		return (T) data;
 	}
 

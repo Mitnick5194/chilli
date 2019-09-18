@@ -50,11 +50,13 @@ public class TimingTask implements Runnable {
 	 * @param interval
 	 *            往后间隔多长时间执行，单位ms
 	 */
-	public TimingTask(ThreadPool pool, Worker worker, long delay, long interval) {
+	public TimingTask(ThreadPool pool, String name, Worker worker, long delay,
+			long interval) {
 		this.pool = pool;
 		this.worker = worker;
 		this.delay = delay;
 		this.interval = interval;
+		this.name = name;
 		start();
 	}
 
@@ -68,8 +70,8 @@ public class TimingTask implements Runnable {
 	 * @param firstExecute
 	 *            执行时间
 	 */
-	public TimingTask(ThreadPool pool, Worker worker, long delay) {
-		this(pool, worker, delay, 0);
+	public TimingTask(ThreadPool pool, String name, Worker worker, long delay) {
+		this(pool, name, worker, delay, 0);
 	}
 
 	private void start() {
@@ -117,8 +119,7 @@ public class TimingTask implements Runnable {
 	 */
 	public static TimingTask createTimingTask(ThreadPool pool, Worker worker,
 			Date executeTime) {
-		long delay = System.currentTimeMillis() - executeTime.getTime();
-		return createTimingTask(pool, worker, delay);
+		return createTimingTask(pool, null, worker, executeTime);
 	}
 
 	/**
@@ -134,8 +135,7 @@ public class TimingTask implements Runnable {
 	public static TimingTask createTimingTask(ThreadPool pool, String name,
 			Worker worker, Date executeTime) {
 		long delay = System.currentTimeMillis() - executeTime.getTime();
-		TimingTask timing = createTimingTask(pool, worker, delay);
-		timing.name = name;
+		TimingTask timing = createTimingTask(pool, name, worker, delay);
 		return timing;
 	}
 
@@ -155,7 +155,7 @@ public class TimingTask implements Runnable {
 			// 已过时间，不执行
 			return _Nil;
 		}
-		return createTimingTask(pool, worker, delay, 0);
+		return createTimingTask(pool, null, worker, delay);
 	}
 
 	/**
@@ -176,8 +176,7 @@ public class TimingTask implements Runnable {
 			timing.name = name;
 			return timing;
 		}
-		TimingTask timing = createTimingTask(pool, worker, delay, 0);
-		timing.name = name;
+		TimingTask timing = createTimingTask(pool, name, worker, delay, 0);
 		return timing;
 	}
 
@@ -196,11 +195,11 @@ public class TimingTask implements Runnable {
 	 */
 	public static TimingTask createTimingTask(ThreadPool pool, Worker worker,
 			long delay, long interval) {
-		return new TimingTask(pool, worker, delay, interval);
+		return createTimingTask(pool, null, worker, delay, interval);
 	}
 
 	/**
-	 * 定时任务
+	 * 定时任务（其他构造都最终都调用这个）
 	 * 
 	 * @param pool
 	 *            线程池
@@ -214,8 +213,7 @@ public class TimingTask implements Runnable {
 	 */
 	public static TimingTask createTimingTask(ThreadPool pool, String name,
 			Worker worker, long delay, long interval) {
-		TimingTask timing = new TimingTask(pool, worker, delay, interval);
-		timing.name = name;
+		TimingTask timing = new TimingTask(pool, name, worker, delay, interval);
 		return timing;
 	}
 
@@ -235,7 +233,7 @@ public class TimingTask implements Runnable {
 	public static TimingTask createTimingTask(ThreadPool pool, Worker worker,
 			Date firstExecuteTime, long interval) {
 		long delay = calDelay(firstExecuteTime, interval);
-		return new TimingTask(pool, worker, delay, interval);
+		return createTimingTask(pool, null, worker, delay, interval);
 	}
 
 	/**
@@ -254,9 +252,7 @@ public class TimingTask implements Runnable {
 	public static TimingTask createTimingTask(ThreadPool pool, String name,
 			Worker worker, Date firstExecuteTime, long interval) {
 		long delay = calDelay(firstExecuteTime, interval);
-		TimingTask timing = new TimingTask(pool, worker, delay, interval);
-		timing.name = name;
-		return timing;
+		return createTimingTask(pool, name, worker, delay, interval);
 	}
 
 	/**
@@ -270,8 +266,8 @@ public class TimingTask implements Runnable {
 	 *            定时间隔
 	 * @return
 	 */
-	public static TimingTask createTimingTask(ThreadPool pool, Worker worker,
-			String firstExecuteDate, long interVal) {
+	public static TimingTask createTimingTask(ThreadPool pool, String name,
+			Worker worker, String firstExecuteDate, long interVal) {
 		if (null == firstExecuteDate) {
 			throw new NullPointerException("首次执行时间为空");
 		}
@@ -318,7 +314,7 @@ public class TimingTask implements Runnable {
 		cal.set(Calendar.HOUR_OF_DAY, h);
 		cal.set(Calendar.MINUTE, m);
 		cal.set(Calendar.SECOND, s);
-		return createTimingTask(pool, worker, cal.getTime(), interVal);
+		return createTimingTask(pool, name, worker, cal.getTime(), interVal);
 	}
 
 	/**
@@ -332,11 +328,10 @@ public class TimingTask implements Runnable {
 	 *            定时间隔
 	 * @return
 	 */
-	public static TimingTask createTimingTask(ThreadPool pool, String name,
-			Worker worker, String firstExecuteTime, long interval) {
-		TimingTask timing = createTimingTask(pool, worker, firstExecuteTime,
-				interval);
-		timing.name = name;
+	public static TimingTask createTimingTask(ThreadPool pool, Worker worker,
+			String firstExecuteTime, long interval) {
+		TimingTask timing = createTimingTask(pool, null, worker,
+				firstExecuteTime, interval);
 		return timing;
 	}
 

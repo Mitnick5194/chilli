@@ -33,6 +33,7 @@ import com.ajie.chilli.http.Options.WeightRang;
 import com.ajie.chilli.http.exception.InvokeException;
 import com.ajie.chilli.utils.common.JsonUtils;
 import com.ajie.chilli.utils.common.StringUtils;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * http调用器，url一般不包含uri，只有在调用的时候才会指定调用哪个uri
@@ -135,10 +136,10 @@ public class HttpInvoke {
 			Options option = parse(url);
 			list.add(option);
 		}
-		//把原来的也加进来
+		// 把原来的也加进来
 		for (Options url : this.urls) {
-			if(list.contains(url)){
-				continue;//list已经有了
+			if (list.contains(url)) {
+				continue;// list已经有了
 			}
 			list.add(url);
 		}
@@ -249,10 +250,16 @@ public class HttpInvoke {
 			// 尝试转换成ResponseResult
 			try {
 				response = JsonUtils.toBean(result, ResponseResult.class);
+				if (null == response.getData()) {
+					// result不是ResponseResult对象的序列，尝试将结果转为jsonobject
+					JSONObject obj = JsonUtils.toBean(result, JSONObject.class);
+					response = ResponseResult.newResult(res.getStatusLine()
+							.getStatusCode(), obj);
+				}
 			} catch (Exception e) {
-				// 不能解析，尝试获取信息构造
-				Object json = JsonUtils.textToJson(result);
-				response = ResponseResult.newResult(StatusCode.SC_OK, json);
+				// 不能解析，直接将信息塞以String类型塞进去
+				response = ResponseResult.newResult(res.getStatusLine()
+						.getStatusCode(), (Object) result);
 			}
 			return response;
 		} catch (URISyntaxException e) {
@@ -336,11 +343,16 @@ public class HttpInvoke {
 			// 尝试转换成ResponseResult
 			try {
 				response = JsonUtils.toBean(result, ResponseResult.class);
+				if (null == response.getData()) {
+					// result不是ResponseResult对象的序列，尝试将结果转为jsonobject
+					JSONObject obj = JsonUtils.toBean(result, JSONObject.class);
+					response = ResponseResult.newResult(res.getStatusLine()
+							.getStatusCode(), obj);
+				}
 			} catch (Exception e) {
-				// 不能解析，尝试获取信息构造
-				Object json = JsonUtils.textToJson(result);
+				// 不能解析，直接将信息塞以String类型塞进去
 				response = ResponseResult.newResult(res.getStatusLine()
-						.getStatusCode(), json);
+						.getStatusCode(), (Object) result);
 			}
 			return response;
 		} catch (UnsupportedEncodingException e) {
