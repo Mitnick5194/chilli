@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -238,30 +239,7 @@ public class HttpInvoke {
 				}
 			}
 			res = client.execute(get);
-			String result = "";
-			ResponseResult response = null;
-			if (res.getStatusLine().getStatusCode() != StatusCode.SC_OK) {
-				throw new InvokeException(res.getStatusLine().getStatusCode()
-						+ "/" + res.getStatusLine().getReasonPhrase(),
-						InvokeException.TYPE_ERRCODE);
-			}
-
-			result = EntityUtils.toString(res.getEntity(), "utf-8");
-			// 尝试转换成ResponseResult
-			try {
-				response = JsonUtils.toBean(result, ResponseResult.class);
-				if (null == response.getData()) {
-					// result不是ResponseResult对象的序列，尝试将结果转为jsonobject
-					JSONObject obj = JsonUtils.toBean(result, JSONObject.class);
-					response = ResponseResult.newResult(res.getStatusLine()
-							.getStatusCode(), obj);
-				}
-			} catch (Exception e) {
-				// 不能解析，直接将信息塞以String类型塞进去
-				response = ResponseResult.newResult(res.getStatusLine()
-						.getStatusCode(), (Object) result);
-			}
-			return response;
+			return handleResponse(res);
 		} catch (URISyntaxException e) {
 			throw new InvokeException("无效uri:" + uri, e,
 					InvokeException.TYPE_URISYNTAX);
@@ -281,6 +259,36 @@ public class HttpInvoke {
 
 			}
 		}
+	}
+
+	private ResponseResult handleResponse(HttpResponse res)
+			throws InvokeException, ParseException, IOException {
+		ResponseResult response = null;
+		if (res.getStatusLine().getStatusCode() != StatusCode.SC_OK) {
+			throw new InvokeException(res.getStatusLine().getStatusCode() + "/"
+					+ res.getStatusLine().getReasonPhrase(),
+					InvokeException.TYPE_ERRCODE);
+		}
+
+		String result = EntityUtils.toString(res.getEntity(), "utf-8");
+		// 尝试转换成ResponseResult
+		try {
+			response = JsonUtils.toBean(result, ResponseResult.class);
+			if (null == response) {
+				return ResponseResult.empty();
+			}
+			if (0 == response.getCode()) {
+				// result不是ResponseResult对象的序列，尝试将结果转为jsonobject
+				JSONObject obj = JsonUtils.toBean(result, JSONObject.class);
+				response = ResponseResult.newResult(res.getStatusLine()
+						.getStatusCode(), obj);
+			}
+		} catch (Exception e) {
+			// 不能解析，直接将信息塞以String类型塞进去
+			response = ResponseResult.newResult(res.getStatusLine()
+					.getStatusCode(), (Object) result);
+		}
+		return response;
 	}
 
 	private void assertException(IOException e) throws InvokeException {
@@ -332,29 +340,7 @@ public class HttpInvoke {
 			entity = new UrlEncodedFormEntity(paramList);
 			post.setEntity(entity);
 			res = client.execute(post);
-			String result = "";
-			ResponseResult response = null;
-			if (res.getStatusLine().getStatusCode() != StatusCode.SC_OK) {
-				throw new InvokeException(res.getStatusLine().getStatusCode()
-						+ "/" + res.getStatusLine().getReasonPhrase(),
-						InvokeException.TYPE_ERRCODE);
-			}
-			result = EntityUtils.toString(res.getEntity(), "utf-8");
-			// 尝试转换成ResponseResult
-			try {
-				response = JsonUtils.toBean(result, ResponseResult.class);
-				if (null == response.getData()) {
-					// result不是ResponseResult对象的序列，尝试将结果转为jsonobject
-					JSONObject obj = JsonUtils.toBean(result, JSONObject.class);
-					response = ResponseResult.newResult(res.getStatusLine()
-							.getStatusCode(), obj);
-				}
-			} catch (Exception e) {
-				// 不能解析，直接将信息塞以String类型塞进去
-				response = ResponseResult.newResult(res.getStatusLine()
-						.getStatusCode(), (Object) result);
-			}
-			return response;
+			return handleResponse(res);
 		} catch (UnsupportedEncodingException e) {
 			throw new InvokeException("参数编码异常", e, InvokeException.TYPE_PARAMS);
 		} catch (ClientProtocolException e1) {

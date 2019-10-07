@@ -437,6 +437,275 @@ final public class Toolkits {
 		return ret + min;
 	}
 
+	/**
+	 * 超简单的32位整数hash算法
+	 * 
+	 * @param str
+	 *            源字串
+	 * @param sign
+	 *            基础hash值
+	 * @return 在基础值上hash源字串后的最终值
+	 */
+	public static int hashInt32(String str, int sign) {
+		if (null == str || 0 == str.length())
+			return sign;
+		int sum;
+		int h;
+		int i = 0;
+		int a;
+		int len = str.length();
+		sum = ((sign >> 16) & 0xFFFF);
+		h = (sign & 0xFFFF);
+		while (i < len) {
+			a = str.charAt(i++);
+			if (a < 256) {
+				a = a << 8;
+				if (i < len) {
+					a |= str.charAt(i);
+					a *= (i++);
+				} else {
+					a *= i;
+				}
+			} else {
+				a *= i;
+			}
+			sum += sum ^ a;
+			h += a;
+			h &= 0xFFFF;
+			sum &= 0xFFFF;
+			// _Logger.trace("sum="+sum+" h="+h+" i="+i);
+		}
+		if (sum > 0x7FFF) {
+			long fix = sum;
+			fix <<= 16;
+			fix |= h;
+			return (int) (fix - 0x100000000L);
+		}
+		return ((sum << 16) | h);
+	}
+
+	/**
+	 * 64位整数hash算法
+	 * 
+	 * @param str
+	 * @param sign
+	 * @return
+	 */
+	public static long hashInt64(String str, int sign) {
+		if (null == str || 0 == str.length()) {
+			return sign;
+		}
+		long hash = hashInt32(str, sign);
+		hash = (hash << 32) >>> 32;
+		hash |= (long) hashCode(str) << 32;
+		return hash;
+	}
+
+	private static int hashCode(String str) {
+		/* 从jdk提取的算法，避免不同jdk算法不同，导致结果不一致 */
+		int h = 0;
+		for (int i = 0; i < str.length(); i++) {
+			int ch = str.charAt(i);
+			h = 31 * h + ch;
+		}
+		return h;
+	}
+
+	/**
+	 * 64位整数HEX字串，不足16个字符前端补0
+	 * 
+	 * @param val
+	 *            整数
+	 * @return hex格式串
+	 */
+	public static String toHex64(long val) {
+		if (0 == val) {
+			return "0000000000000000";
+		}
+		return toHexFixed(val, new StringBuilder(16)).toString();
+	}
+
+	/**
+	 * 32位整数HEX字串，不足8个字符前端补0
+	 * 
+	 * @param val
+	 *            整数
+	 * @return hex格式串
+	 */
+	public static String toHex32(int val) {
+		if (0 == val) {
+			return "00000000";
+		}
+		return toHexFixed(val, new StringBuilder(8)).toString();
+	}
+
+	/**
+	 * 16位整数HEX字串，不足4个字符前端补0
+	 * 
+	 * @param val
+	 * @return
+	 */
+	public static String toHex16(short val) {
+		if (0 == val) {
+			return "0000";
+		}
+		return toHexFixed(val, new StringBuilder(4)).toString();
+	}
+
+	/**
+	 * 转为 HEX字串
+	 * 
+	 * @param val
+	 *            32位数值
+	 * @param sb
+	 *            转换HEX后的追加字串缓冲区
+	 * @return 追加后的字串缓冲区
+	 */
+	public static StringBuilder toHex(int val, StringBuilder sb) {
+		if (val < 0 || val >= 0x10000000) {
+			sb.append(hexTable[(val >> 28) & 0xF]);
+			sb.append(hexTable[(val >> 24) & 0xF]);
+			sb.append(hexTable[(val >> 20) & 0xF]);
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x01000000) {
+			sb.append(hexTable[(val >> 24) & 0xF]);
+			sb.append(hexTable[(val >> 20) & 0xF]);
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00100000) {
+			sb.append(hexTable[(val >> 20) & 0xF]);
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00010000) {
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00001000) {
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00000100) {
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00000010) {
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00000001) {
+			sb.append(hexTable[(val) & 0xF]);
+		} else {
+			sb.append("0");
+			return sb;
+		}
+		return sb;
+	}
+
+	/**
+	 * 32位整数HEX字串，不足8个字符前端补0
+	 * 
+	 * @param val
+	 *            32位数字
+	 * @param sb
+	 *            字串缓冲区，若为null自动创建新的
+	 * @return 8字符的HEX编码串
+	 */
+	public static StringBuilder toHexFixed(int val, StringBuilder sb) {
+		if (null == sb) {
+			sb = new StringBuilder(8);
+		}
+		if (val < 0 || val >= 0x10000000) {
+			sb.append(hexTable[(val >> 28) & 0xF]);
+			sb.append(hexTable[(val >> 24) & 0xF]);
+			sb.append(hexTable[(val >> 20) & 0xF]);
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x01000000) {
+			sb.append('0');
+			sb.append(hexTable[(val >> 24) & 0xF]);
+			sb.append(hexTable[(val >> 20) & 0xF]);
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00100000) {
+			sb.append("00");
+			sb.append(hexTable[(val >> 20) & 0xF]);
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00010000) {
+			sb.append("000");
+			sb.append(hexTable[(val >> 16) & 0xF]);
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00001000) {
+			sb.append("0000");
+			sb.append(hexTable[(val >> 12) & 0xF]);
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00000100) {
+			sb.append("00000");
+			sb.append(hexTable[(val >> 8) & 0xF]);
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00000010) {
+			sb.append("000000");
+			sb.append(hexTable[(val >> 4) & 0xF]);
+			sb.append(hexTable[(val) & 0xF]);
+		} else if (val >= 0x00000001) {
+			sb.append("0000000");
+			sb.append(hexTable[(val) & 0xF]);
+		} else {
+			sb.append("00000000");
+			return sb;
+		}
+		return sb;
+	}
+
+	/**
+	 * 64位整数HEX字串，不足16个字符前端补0
+	 * 
+	 * @param val
+	 *            64位数值
+	 * @param sb
+	 *            字串缓冲区，若为null自动创建新的
+	 * @return 16字符的HEX编码串
+	 */
+	public static StringBuilder toHexFixed(long val, StringBuilder sb) {
+		if (null == sb) {
+			sb = new StringBuilder(16);
+		}
+		// 高32位
+		int i32 = (int) ((val >> 32) & 0xFFFFFFFF);
+		toHexFixed(i32, sb);
+		// 低32位
+		i32 = (int) (val & 0xFFFFFFFF);
+		toHexFixed(i32, sb);
+		return sb;
+	}
+
 	// 测试
 	public static void main(String[] args) throws InterruptedException {
 
@@ -455,7 +724,7 @@ final public class Toolkits {
 		long l = System.currentTimeMillis();
 		StringBuffer sb = new StringBuffer();
 		while (l >> 4 > 0) {
-			sb.append(String.format("%02x", new Integer((int)(l & 0xff))));
+			sb.append(String.format("%02x", new Integer((int) (l & 0xff))));
 		}
 
 		/*
