@@ -85,12 +85,16 @@ public class SimpleEncrypt {
 	 */
 	public static void encrypt(InputStream in, OutputStream out, String password) {
 		StringBuilder sb = new StringBuilder();
-		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new InputStreamReader(in, "utf-8"));
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
 		String line = null;
 		try {
 			while (null != (line = br.readLine())) {
 				// 对每一行进行加密
-				line = new String(line.getBytes(),"utf8");
 				sb.append(encrypt(line, password));
 				sb.append("\r\n");
 			}
@@ -99,7 +103,7 @@ public class SimpleEncrypt {
 		}
 		// 写入文件
 		try {
-			out.write(sb.toString().getBytes());
+			out.write(sb.toString().getBytes("utf-8"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -153,19 +157,20 @@ public class SimpleEncrypt {
 
 	public static void main(String[] args) throws UnsupportedEncodingException {
 		try {
-			InputStream in = new FileInputStream(new File("C:\\Users\\ajie\\Desktop\\test.txt"));
-			OutputStream out = new FileOutputStream(new File("C:\\users\\ajie\\Desktop\\out.txt"));
-			encrypt(in, out, "niezhenjie");
+			InputStream in = new FileInputStream(new File(
+					"C:\\Users\\ajie\\Desktop\\test.txt"));
+			OutputStream out = new FileOutputStream(new File(
+					"C:\\users\\ajie\\Desktop\\out.txt"));
+			encrypt(in, out, "123");
 			in.close();
 			out.close();
-			InputStream din = new FileInputStream(new File("C:\\Users\\ajie\\Desktop\\out.txt"));
-			OutputStream dout = new FileOutputStream(new File("C:\\users\\ajie\\Desktop\\out1.txt"));
-			decrypt(din, dout, "niezhenjie");
+			InputStream din = new FileInputStream(new File(
+					"C:\\Users\\ajie\\Desktop\\out.txt"));
+			OutputStream dout = new FileOutputStream(new File(
+					"C:\\users\\ajie\\Desktop\\out1.txt"));
+			decrypt(din, dout, "123");
 			din.close();
 			dout.close();
-			String str = encrypt("叒 品 晿 瞐 舙 雥 雦 鑫 矗 灥 飍 馫 晿", "niezhenjie");
-			System.out.println(str);
-			System.out.println(decrypt(str, "niezhenjie"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
