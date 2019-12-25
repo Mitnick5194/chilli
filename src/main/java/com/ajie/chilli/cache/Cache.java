@@ -1,6 +1,5 @@
 package com.ajie.chilli.cache;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -12,7 +11,7 @@ import java.util.Map;
  * @param <V>
  */
 public interface Cache<K, V> {
-	
+
 	/** 缓存状态--正常 */
 	public static final int SATAE_NORMAL = 0x10000;
 	/** 缓存状态--停用 */
@@ -32,7 +31,7 @@ public interface Cache<K, V> {
 	 * 
 	 * @param map
 	 */
-	void putAll(Map<? extends K, ? extends V> map);
+	void putAll(Map<K, V> map);
 
 	/**
 	 * 从缓存中移除一条数据，如果移除成功，则返回被移除的值，失败，返回null
@@ -55,7 +54,7 @@ public interface Cache<K, V> {
 	 * 
 	 * @return
 	 */
-	int size();
+	long size();
 
 	/**
 	 * 缓存是否为空
@@ -63,13 +62,6 @@ public interface Cache<K, V> {
 	 * @return
 	 */
 	boolean isEmpty();
-
-	/**
-	 * 最后的修改时间
-	 * 
-	 * @return
-	 */
-	Date lastModifyDate();
 
 	/**
 	 * 清空缓存

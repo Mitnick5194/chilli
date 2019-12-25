@@ -22,7 +22,8 @@ import com.ajie.chilli.cache.CacheListener;
  * @param <V>
  */
 public class MapCache<K, V> implements Cache<K, V>, CacheListener {
-	private final static Logger logger = LoggerFactory.getLogger(MapCache.class);
+	private final static Logger logger = LoggerFactory
+			.getLogger(MapCache.class);
 	/** 缓存最多项 */
 	public static final int MAXIMUN_CAPACITY = (1 << 27) - 1;
 
@@ -81,7 +82,7 @@ public class MapCache<K, V> implements Cache<K, V>, CacheListener {
 		return v;
 	}
 
-	public void putAll(Map<? extends K, ? extends V> m) {
+	public void putAll(Map<K, V> m) {
 		if (!checkState()) {
 			return;
 		}
@@ -103,7 +104,7 @@ public class MapCache<K, V> implements Cache<K, V>, CacheListener {
 		return map.get(key);
 	}
 
-	public int size() {
+	public long size() {
 		return map.size();
 	}
 

@@ -89,7 +89,7 @@ public class SimpleCacheMgr implements CacheMgr {
 			return null;
 		}
 		CacheListener max = null;
-		int size = 0;
+		long size = 0;
 		for (CacheListener listener : cacheListeners) {
 			if (listener.size() > size) {
 				max = listener;

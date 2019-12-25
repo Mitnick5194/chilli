@@ -20,7 +20,7 @@ public interface CacheListener {
 	 * 
 	 * @return
 	 */
-	int size();
+	long size();
 
 	/**
 	 * 内存回收

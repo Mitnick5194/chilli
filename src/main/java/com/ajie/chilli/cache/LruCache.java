@@ -58,7 +58,7 @@ public class LruCache<K, V> implements CacheListener {
 	}
 
 	@Override
-	public int size() {
+	public long size() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

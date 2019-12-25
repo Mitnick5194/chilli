@@ -278,4 +278,21 @@ public final class TimeUtil {
 		}
 		return date;
 	}
+
+	/**
+	 * 秒转换成毫秒
+	 * 
+	 * @return
+	 */
+	public static long secondToMills(int seconds) {
+		return seconds * 1000;
+	}
+
+	public static long minuteToMills(int minute) {
+		return secondToMills(minute * 60);
+	}
+
+	public static long hourToMills(int hour) {
+		return minuteToMills(hour * 60);
+	}
 }
