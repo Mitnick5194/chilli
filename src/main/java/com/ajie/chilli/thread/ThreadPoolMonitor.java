@@ -48,6 +48,7 @@ public class ThreadPoolMonitor {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static class PoolData {
 		/** 线程池总个数 */
 		private int allCount;

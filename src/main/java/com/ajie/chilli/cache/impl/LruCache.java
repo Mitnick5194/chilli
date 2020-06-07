@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.ajie.chilli.cache.Cache;
 import com.ajie.chilli.utils.TimeUtil;
+import com.ajie.chilli.utils.Toolkits;
 
 /**
  * 基于lru算法的双向链表缓存
@@ -23,7 +24,7 @@ public class LruCache<K, V> implements Cache<K, V> {
 	/** 缓存第一项指针 */
 	private LruEntry<K, V> first;
 	/** 缓存最后一项指针 */
-	// private LruEntry<K, V> last;
+	private LruEntry<K, V> last;
 	/** 过期时间 单位s */
 	protected int timeout;
 	/** 锁 */
@@ -60,6 +61,7 @@ public class LruCache<K, V> implements Cache<K, V> {
 		if (null != entry) {
 			V old = entry.getValue();
 			entry.setValue(value);
+			hitEntry(entry);
 			return old;
 		}
 		LruEntry<K, V> newEntry = createEntry(key, value);
@@ -99,6 +101,7 @@ public class LruCache<K, V> implements Cache<K, V> {
 	private LruEntry<K, V> putHead(LruEntry<K, V> entry) {
 		if (null == first) {// 当前链表为空
 			first = entry;
+			last = entry;// 只有一项，第一个也是最后一个
 			entry.hit();
 			return entry;
 		}
@@ -108,11 +111,12 @@ public class LruCache<K, V> implements Cache<K, V> {
 		entry.setNext(first);
 		// 表头变量指针指向entry（即让entry变成了第一项）
 		first = entry;
+		entry.hit();
 		return entry;
 	}
 
 	/**
-	 * 寻找实体（校验过期）
+	 * 寻找实体（不校验过期）
 	 * 
 	 * @param key
 	 * @return
@@ -122,21 +126,13 @@ public class LruCache<K, V> implements Cache<K, V> {
 			return null;
 		}
 		if (first.getKey().equals(key)) {
-			if (first.isTimeout()) {
-				// 过期了
-				return null;
-			}
-			return hitEntry(first);
+			return first;
 		}
 		LruEntry<K, V> next = first.getNext();
 		while (null != next) {
 			LruEntry<K, V> entry = next;
 			if (entry.getKey().equals(key)) {
-				if (entry.isTimeout()) {
-					// 过期了
-					return null;
-				}
-				return hitEntry(entry);
+				return entry;
 			}
 			next = entry.next;
 		}
@@ -144,7 +140,7 @@ public class LruCache<K, V> implements Cache<K, V> {
 	}
 
 	/**
-	 * 命中实体并更新实体的访问时间戳，最后将实体放入头部(不校验过期)
+	 * 命中实体并更新实体的访问时间戳，最后将实体从链表中分离然后放入头部(不校验过期)
 	 * 
 	 * @param entry
 	 * @return
@@ -155,7 +151,13 @@ public class LruCache<K, V> implements Cache<K, V> {
 			entry.hit();
 			return entry;
 		}
-		// 放入头部
+		if (entry == last) {
+			// 这是最后一项，改变一下last的指针
+			last = entry.getPre();
+		}
+		// 将entry从链表中分离
+		separateEntry(entry);
+		// 放入头部(里面会更新时间戳)
 		return putHead(entry);
 	}
 
@@ -178,6 +180,17 @@ public class LruCache<K, V> implements Cache<K, V> {
 		if (null != next) {
 			next.setPre(pre);
 		}
+		// 将entry的前后指针置空
+		entry.pre = null;
+		entry.next = null;
+		// 如果最后一项，则将last指针指向pre
+		if (entry == last) {
+			last = pre;
+		}
+		// 如果是第一项，则将first指针指向next
+		if (entry == first) {
+			first = next;
+		}
 		return entry;
 	}
 
@@ -199,7 +212,7 @@ public class LruCache<K, V> implements Cache<K, V> {
 	public V remove(Object key) {
 		LruEntry<K, V> entry = findEntry(key);
 		if (null != entry) {
-			entry = separateEntry(entry);
+			separateEntry(entry);
 			V v = entry.getValue();
 			entry = null; // let gc
 			count--;
@@ -211,10 +224,10 @@ public class LruCache<K, V> implements Cache<K, V> {
 	@Override
 	public V get(Object key) {
 		LruEntry<K, V> entry = findEntry(key);
-		if (null == entry) {
+		if (null == entry || entry.isTimeout()) {
 			return null;
 		}
-		return entry.getValue();
+		return hitEntry(entry).getValue();
 	}
 
 	@Override
@@ -228,18 +241,28 @@ public class LruCache<K, V> implements Cache<K, V> {
 	}
 
 	@Override
-	public void clear() {
+	public void cleanAll() {
 		// 为了更好的gc，还是所有的实体都置为空吧（虽然直接将first置为空后，后面的实体都是不可达的gc也会被回收）
 		if (null == first) {
 			return;
 		}
-		LruEntry<K, V> entry = first;
-		LruEntry<K, V> next = null;
-		do {
-			next = entry.getNext();
-			separateEntry(entry);
-		} while (null != next);
+		while (null != first) {
+			remove(first.getKey());// 分离方法会处理first的指针
+		}
 		count = 0;
+	}
+
+	/**
+	 * 清除缓存过期项
+	 */
+	public void cleanup() {
+		// 从链表尾部遍历
+		if (!last.isTimeout()) {
+			return; // 最后一项都没过期，就没有过期的了
+		}
+		while (null != last && last.isTimeout()) {
+			remove(last.getKey());
+		}
 	}
 
 	static class LruEntry<K, V> {
@@ -255,10 +278,13 @@ public class LruCache<K, V> implements Cache<K, V> {
 		private int timeout;
 		/** 最后命中时间戳 */
 		private long lastHit;
+		/** 命中次数 */
+		private long hitTimes;
 
 		LruEntry(K k, V v) {
 			key = k;
 			value = v;
+			lastHit = System.currentTimeMillis();
 		}
 
 		/**
@@ -267,6 +293,9 @@ public class LruCache<K, V> implements Cache<K, V> {
 		 * @return
 		 */
 		boolean isTimeout() {
+			if (timeout == -1) {
+				return false;
+			}
 			return System.currentTimeMillis() - lastHit > TimeUtil
 					.secondToMills(timeout);
 		}
@@ -276,6 +305,7 @@ public class LruCache<K, V> implements Cache<K, V> {
 		 */
 		void hit() {
 			lastHit = System.currentTimeMillis();
+			hitTimes++;
 		}
 
 		K getKey() {
@@ -309,15 +339,61 @@ public class LruCache<K, V> implements Cache<K, V> {
 		void setTimeout(int timeout) {
 			this.timeout = timeout;
 		}
+
+		boolean hasNext() {
+			return null != next;
+		}
+
+		boolean hasPre() {
+			return null != pre;
+		}
+
+		long getHitTimes() {
+			return hitTimes;
+		}
+
+		public String toString() {
+			return key + "=" + key + ",value=" + value + ",timeout=" + timeout
+					+ ";hitTimes:" + hitTimes;
+		}
 	}
 
-	public static void main(String[] args) {
-		LruCache<String, String> cache = new LruCache<>(1,String.class);
-		cache.put("k1", "v1");
-		cache.put("k2", "v2");
-		cache.put("k3", "v3");
-		cache.put("k2", "newValue");
-		System.out.println(cache.get("k2"));
+	public static void main(String[] args) throws InterruptedException {
+		final LruCache<String, User> cache = new LruCache<>(User.class);
+		final String key = Toolkits.genRandomStr(16);
+		User u = new User("ajie");
+		cache.put(key, u);
+		Thread.sleep(1000);
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				User user = cache.get(key);
+				System.out.println(user.getName());
+			}
+		}).start();
+
+		/*
+		 * for (int i = 0; i < 200000; i++) { cache.put(i, i); }
+		 * System.out.println("add complte"); long start =
+		 * System.currentTimeMillis(); System.out.println(cache.get(1)); long
+		 * end = System.currentTimeMillis(); System.out.println("耗时：" + (end -
+		 * start) + "ms"); start = System.currentTimeMillis();
+		 * System.out.println(cache.get(1)); end = System.currentTimeMillis();
+		 * System.out.println("耗时：" + (end - start) + "ms");
+		 */
+
 	}
 
+	static class User {
+		private String name;
+
+		public User(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+	}
 }

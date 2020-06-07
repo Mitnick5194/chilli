@@ -31,13 +31,23 @@ import com.jcraft.jsch.SftpException;
  *
  */
 public class UploadServiceImpl implements UploadService {
-	private final static Logger logger = LoggerFactory.getLogger(UploadServiceImpl.class);
+	private final static Logger logger = LoggerFactory
+			.getLogger(UploadServiceImpl.class);
 
 	/** 连接会话 */
 	private SshSessionMgr sessionMgr;
 
+	private String path;
+
 	public UploadServiceImpl(SshSessionMgr sessionMgr) {
 		this.sessionMgr = sessionMgr;
+		path = DEFAULT_PATH;
+	}
+
+	public UploadServiceImpl(SshSessionMgr sessionMgr, String path) {
+		this(sessionMgr);
+		this.path = path;
+
 	}
 
 	public SshSessionMgr getSshSessionMgr() {
@@ -49,12 +59,14 @@ public class UploadServiceImpl implements UploadService {
 	}
 
 	@Override
-	public void upload(InputStream stream, String fileName) throws RemoteException {
-		upload(stream, DEFAULT_PATH, fileName);
+	public void upload(InputStream stream, String fileName)
+			throws RemoteException {
+		upload(stream, path, fileName);
 	}
 
 	@Override
-	public void upload(InputStream stream, String path, String fileName) throws RemoteException {
+	public void upload(InputStream stream, String path, String fileName)
+			throws RemoteException {
 		if (null == stream)
 			throw new RemoteException("无效输入流");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -79,12 +91,12 @@ public class UploadServiceImpl implements UploadService {
 
 	@Override
 	public void upload(byte[] stream, String fileName) throws RemoteException {
-		upload(stream, DEFAULT_PATH, fileName);
+		upload(stream, path, fileName);
 	}
 
 	@Override
-	public void upload(final byte[] stream, final String path, final String fileName)
-			throws RemoteException {
+	public void upload(final byte[] stream, final String path,
+			final String fileName) throws RemoteException {
 		Worker worker = new Worker() {
 			@Override
 			public void run(SessionExt session) throws RemoteException {
@@ -118,7 +130,8 @@ public class UploadServiceImpl implements UploadService {
 	 * @return
 	 * @throws RemoteException
 	 */
-	private String createFolders(String path, ChannelSftp sftp) throws RemoteException {
+	private String createFolders(String path, ChannelSftp sftp)
+			throws RemoteException {
 		if (path.startsWith("/")) {
 			path = path.substring(1);
 		}
@@ -155,7 +168,8 @@ public class UploadServiceImpl implements UploadService {
 		return cd;
 	}
 
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws IOException,
+			InterruptedException {
 		Properties prop = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("server.properties");
@@ -179,7 +193,8 @@ public class UploadServiceImpl implements UploadService {
 					try {
 						InputStream stream = new FileInputStream(new File(
 								"C:/Users/ajie/Desktop/day3.gif"));
-						upload.upload(stream, "/var/www/image", "bigimg" + j + ".png");
+						upload.upload(stream, "/var/www/image", "bigimg" + j
+								+ ".png");
 					} catch (RemoteException e) {
 
 					} catch (FileNotFoundException e) {

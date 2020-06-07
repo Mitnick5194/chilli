@@ -66,5 +66,5 @@ public interface Cache<K, V> {
 	/**
 	 * 清空缓存
 	 */
-	void clear();
+	void cleanAll();
 }

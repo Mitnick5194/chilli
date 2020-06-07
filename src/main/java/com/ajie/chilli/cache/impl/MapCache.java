@@ -120,7 +120,7 @@ public class MapCache<K, V> implements Cache<K, V>, CacheListener {
 		lastModify = new Date();
 	}
 
-	public void clear() {
+	public void cleanAll() {
 		map.clear();
 	}
 
@@ -184,6 +184,12 @@ public class MapCache<K, V> implements Cache<K, V>, CacheListener {
 		if (state == SATAE_STOP)
 			return false;
 		return true;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

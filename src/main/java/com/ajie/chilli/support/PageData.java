@@ -1,13 +1,13 @@
 package com.ajie.chilli.support;
 
 
+
 /**
  * 分页数据
  * 
  * @author niezhenjie
  */
 public interface PageData<E> extends Iterable<E> {
-
 	/**
 	 * 当前页（页码）
 	 * 
